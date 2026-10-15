@@ -1,5 +1,5 @@
 /* =========================================================
-   2万分の1のヒカマー v3 — イベント（日単位） / 決断 / 暦イベント
+   10万分の1のヒカマー v3 — イベント（日単位） / 決断 / 暦イベント
    d: [最小日, 最大日]（参入からの経過日数）
    m: 対象月のリスト / era: [最小年, 最大年]
    fx: {happy,mental,hp,know,rel,fame,goroku,skill,fameRisk,banRisk,money,nareai,edge,dev,heat,flags,zukan,viral}

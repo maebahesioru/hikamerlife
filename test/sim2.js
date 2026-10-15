@@ -9,6 +9,7 @@ require("../site/js/extra3.js");
 require("../site/js/extra4.js");
 require("../site/js/extra5.js");
 require("../site/js/extra6.js");
+require("../site/js/extra7.js");
 require("../site/js/engine2.js");
 
 const N = parseInt(process.argv[2] || "300", 10);

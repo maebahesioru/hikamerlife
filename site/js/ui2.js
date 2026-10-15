@@ -1,5 +1,5 @@
 /* =========================================================
-   2万分の1のヒカマー v3 — UI（日単位・時代くじ・引退エンド）
+   10万分の1のヒカマー v3 — UI（日単位・時代くじ・引退エンド）
    ========================================================= */
 window.HK = window.HK || {};
 
@@ -391,7 +391,7 @@ window.HK = window.HK || {};
     const key = [st.dev, st.lvl, st.night ? 1 : 0, S.faded ? 1 : 0].join("|");
     if (key === sceneKey) return;
     sceneKey = key;
-    el.innerHTML = `<canvas id="sceneCv" width="640" height="360"></canvas><div class="dim small" style="margin-top:6px">${sceneCaption(st)}</div>`;
+    el.innerHTML = `<canvas id="sceneCv" width="160" height="90"></canvas><div class="dim small" style="margin-top:6px">${sceneCaption(st)}</div>`;
     drawScene($("sceneCv"), st);
   }
   function drawScene(cv, st) {
@@ -399,119 +399,79 @@ window.HK = window.HK || {};
     const x = cv.getContext("2d");
     const night = st.night;
     const dim = S.faded ? 0.45 : 1;
-    // 部屋（壁と床の境目をはっきり）
-    x.fillStyle = night ? "#1a2133" : "#232c42";
-    x.fillRect(0, 0, 640, 360);
-    x.fillStyle = night ? "#0d111d" : "#141a2c";
-    x.fillRect(0, 272, 640, 88);
-    x.fillStyle = "#2f3d5c";
-    x.fillRect(0, 268, 640, 5);
+    const R = (c, a, px0, py0, w, h) => { x.fillStyle = c; x.globalAlpha = a; x.fillRect(px0, py0, w, h); x.globalAlpha = 1; };
+    // 部屋（ドット絵 160x90）
+    R(night ? "#202a40" : "#2a3450", 1, 0, 0, 160, 90);
+    R(night ? "#111827" : "#181f30", 1, 0, 62, 160, 28);
+    R("#2f3d5c", 1, 0, 61, 160, 1);
     // 窓
-    x.fillStyle = "#0b0f1c";
-    x.fillRect(472, 46, 108, 118);
-    x.strokeStyle = "#2a3550"; x.lineWidth = 4;
-    x.strokeRect(472, 46, 108, 118);
-    x.beginPath(); x.moveTo(526, 46); x.lineTo(526, 164); x.moveTo(472, 105); x.lineTo(580, 105); x.stroke();
-    if (night) {
-      x.fillStyle = "#e8e4c8";
-      x.beginPath(); x.arc(550, 80, 12, 0, Math.PI * 2); x.fill();
-      x.fillStyle = "#8fa3c8";
-      for (const [sx, sy, r] of [[495, 70, 2], [510, 135, 1.6], [560, 140, 1.8], [575, 68, 1.5]]) { x.beginPath(); x.arc(sx, sy, r, 0, Math.PI * 2); x.fill(); }
-    } else {
-      x.fillStyle = "#7ea6d8";
-      x.beginPath(); x.arc(550, 82, 13, 0, Math.PI * 2); x.fill();
-      x.fillStyle = "#c9d9ee";
-      x.fillRect(480, 120, 40, 8); x.fillRect(544, 132, 30, 7);
-    }
-    // 壁の記録（ピン留めした記録カード）
+    R(night ? "#16213f" : "#9cc4ee", 1, 118, 10, 28, 32);
+    R("#3e5075", 1, 118, 10, 28, 1); R("#3e5075", 1, 118, 41, 28, 1); R("#3e5075", 1, 118, 10, 1, 32); R("#3e5075", 1, 145, 10, 1, 32);
+    R("#3e5075", 1, 131, 10, 1, 32); R("#3e5075", 1, 118, 25, 28, 1);
+    if (night) { R("rgba(244,240,216,.22)", 1, 133, 11, 10, 10); R("#f4f0d8", 1, 136, 14, 4, 4); R("#c8d8f8", 1, 124, 17, 1, 1); R("#c8d8f8", 1, 128, 34, 1, 1); R("#c8d8f8", 1, 140, 36, 1, 1); R("#c8d8f8", 1, 122, 30, 1, 1); R("#c8d8f8", 1, 143, 22, 1, 1); }
+    else { R("#8fb8e6", 1, 136, 15, 4, 4); R("#c9d9ee", 1, 120, 30, 8, 2); R("#c9d9ee", 1, 134, 33, 6, 2); }
+    // 壁の記録カード
     for (let i = 0; i < Math.min(4, st.lvl); i++) {
-      const px0 = 64 + i * 46, py0 = 70;
-      x.fillStyle = i % 2 ? "#2a3a54" : "#2e3450";
-      x.fillRect(px0, py0, 34, 46);
-      x.strokeStyle = "#475b83"; x.lineWidth = 2; x.strokeRect(px0, py0, 34, 46);
-      x.fillStyle = "#8fa3c8";
-      x.fillRect(px0 + 5, py0 + 8, 24, 3); x.fillRect(px0 + 5, py0 + 16, 24, 3); x.fillRect(px0 + 5, py0 + 24, 16, 3);
-      x.fillStyle = "#e8c15a"; x.beginPath(); x.arc(px0 + 17, py0 - 3, 3, 0, Math.PI * 2); x.fill();
+      const cx0 = 14 + i * 11;
+      R(i % 2 ? "#2a3a54" : "#2e3450", 1, cx0, 16, 8, 11);
+      R("#5d76a5", 1, cx0, 16, 8, 1); R("#5d76a5", 1, cx0, 26, 8, 1); R("#5d76a5", 1, cx0, 16, 1, 11); R("#5d76a5", 1, cx0 + 7, 16, 1, 11);
+      R("#b9c8e2", 1, cx0 + 2, 19, 4, 1); R("#b9c8e2", 1, cx0 + 2, 22, 4, 1);
+      R("#e8c15a", 1, cx0 + 3, 14, 2, 2);
     }
     if (st.lvl >= 4) {
-      x.fillStyle = "#f0c860"; x.fillRect(60, 56, 200, 6);
-      for (let i = 0; i < 5; i++) {
-        x.save(); x.translate(280 + i * 36, 110); x.rotate(Math.PI / 4);
-        x.fillStyle = "#f0c860"; x.fillRect(-6, -6, 12, 12); x.restore();
-      }
+      R("#f0c860", 1, 13, 12, 46, 1);
+      for (let i = 0; i < 5; i++) R("#f0c860", 1, 68 + i * 9, 22, 2, 2);
     }
-    // いす・人（背面・モニター側からリムライト）
-    x.fillStyle = "#26324e"; x.fillRect(196, 192, 66, 100);
-    x.strokeStyle = "#3a4a70"; x.lineWidth = 2; x.strokeRect(196, 192, 66, 100);
-    x.fillStyle = "#1d2637";
-    x.beginPath(); x.arc(232, 186, 22, 0, Math.PI * 2); x.fill();
-    x.fillRect(212, 204, 40, 74);
-    x.strokeStyle = "#26324e"; x.lineWidth = 8;
-    x.beginPath(); x.arc(232, 180, 27, Math.PI, Math.PI * 2); x.stroke();
-    x.strokeStyle = "rgba(126,200,169,.5)"; x.lineWidth = 3;
-    x.beginPath(); x.arc(232, 186, 22, -Math.PI * 0.55, Math.PI * 0.45); x.stroke();
-    x.beginPath(); x.moveTo(250, 206); x.lineTo(250, 274); x.stroke();
-    x.fillStyle = "rgba(13,17,25,.5)"; x.fillRect(206, 274, 64, 8);
-    // 机（天板・前板・脚・影）
-    x.fillStyle = "#34425f"; x.fillRect(300, 250, 286, 12);
-    x.fillStyle = "#232e49"; x.fillRect(300, 262, 286, 10);
-    x.fillStyle = "#2b3854"; x.fillRect(312, 272, 12, 64); x.fillRect(560, 272, 12, 64);
-    x.fillStyle = "rgba(8,10,16,.55)"; x.fillRect(306, 336, 274, 10);
+    // いす・人（背面）
+    R("#2a3a58", 1, 48, 44, 16, 22);
+    R("#455a85", 1, 48, 44, 16, 1);
+    R("#35466b", 1, 54, 38, 7, 7); R("#4a5c85", 1, 54, 38, 7, 1);
+    R("#35466b", 1, 52, 45, 11, 16);
+    R("#26324e", 1, 52, 36, 11, 2); R("rgba(140,170,220,.10)", 1, 118, 42, 28, 10);
+    R("rgba(126,200,169,.55)", 1, 61, 38, 1, 7); R("rgba(126,200,169,.18)", 1, 52, 45, 1, 16); R("rgba(126,200,169,.35)", 1, 54, 37, 7, 1);
+    R("rgba(13,17,25,.5)", 1, 50, 60, 17, 2);
+    // 机
+    R("#3d4d6d", 1, 72, 58, 74, 3); R("#54678c", 1, 72, 58, 74, 1);
+    R("#232e49", 1, 72, 61, 74, 3);
+    R("#2b3854", 1, 76, 64, 3, 11); R("#2b3854", 1, 140, 64, 3, 11);
+    R("rgba(8,10,16,.55)", 1, 74, 77, 70, 2);
     // ランプ
     if (night && st.dev >= 1) {
-      const g = x.createRadialGradient(318, 214, 3, 318, 214, 46);
-      g.addColorStop(0, "rgba(232,193,90,.30)"); g.addColorStop(1, "rgba(232,193,90,0)");
-      x.fillStyle = g; x.beginPath(); x.arc(318, 214, 46, 0, Math.PI * 2); x.fill();
-      x.strokeStyle = "#3d4b6b"; x.lineWidth = 4;
-      x.beginPath(); x.moveTo(318, 214); x.lineTo(318, 252); x.stroke();
-      x.fillStyle = "#3d4b6b"; x.fillRect(308, 204, 20, 10);
+      R("rgba(232,193,90,.30)", 1, 73, 48, 14, 14);
+      R("rgba(232,193,90,.45)", 1, 77, 52, 6, 6);
+      R("#3d4b6b", 1, 79, 54, 1, 4);
+      R("#3d4b6b", 1, 76, 52, 6, 2);
     }
-    // 画面グロー
+    // 画面グロー（ピクセルの四角い光）
     const glow = (gx, gy, gr, alpha) => {
-      const g = x.createRadialGradient(gx, gy, 4, gx, gy, gr);
-      g.addColorStop(0, `rgba(126,200,169,${(alpha * dim).toFixed(3)})`);
-      g.addColorStop(1, "rgba(126,200,169,0)");
-      x.fillStyle = g; x.beginPath(); x.arc(gx, gy, gr, 0, Math.PI * 2); x.fill();
+      R(`rgba(126,200,169,${(alpha * dim).toFixed(3)})`, 1, gx - gr, gy - gr, gr * 2, gr * 2);
+      R(`rgba(126,200,169,${(alpha * dim * 1.8).toFixed(3)})`, 1, gx - Math.round(gr / 2), gy - Math.round(gr / 2), gr, gr);
     };
-    const scr = c => { x.globalAlpha = dim; x.fillStyle = c; };
     if (st.dev <= 0) {
-      glow(511, 242, 44, 0.25);
-      x.fillStyle = "#0d1119"; x.fillRect(500, 232, 22, 20);
-      scr("#7ec8a9"); x.fillRect(502, 234, 18, 15);
+      glow(124, 56, 7, 0.09);
+      R("#0d1119", dim, 120, 52, 8, 7); R("#8fd6b8", dim, 121, 53, 6, 5);
     } else if (st.dev === 1) {
-      glow(463, 224, 62, 0.3);
-      x.fillStyle = "#0d1119"; x.fillRect(424, 204, 78, 40);
-      scr("#7ec8a9"); x.fillRect(428, 208, 70, 32);
-      x.globalAlpha = 1; x.fillStyle = "#0d1119"; x.fillRect(418, 244, 90, 8);
-      x.fillStyle = "#0d1119"; x.fillRect(508, 236, 20, 16);
-      scr("#7ec8a9"); x.fillRect(510, 238, 16, 11);
+      glow(111, 50, 11, 0.10);
+      R("#0d1119", dim, 100, 44, 22, 12); R("#8fd6b8", dim, 101, 45, 20, 10); R("#b9f0d8", dim, 104, 48, 13, 1); R("#b9f0d8", dim, 104, 51, 9, 1);
+      R("#0d1119", dim, 98, 56, 26, 2); R("#0d1119", dim, 126, 52, 8, 6); R("#8fd6b8", dim, 127, 53, 6, 4);
     } else {
-      glow(440, 196, 88, 0.34);
-      x.fillStyle = "#0d1119"; x.fillRect(372, 158, 118, 72);
-      scr("#7ec8a9"); x.fillRect(376, 162, 110, 64);
-      x.globalAlpha = 1; x.fillStyle = "#2b3854";
-      x.fillRect(424, 230, 16, 16); x.fillRect(404, 246, 56, 6);
-      x.fillStyle = "#7ec8a9"; x.fillRect(532, 152, 8, 8);
+      glow(109, 46, 13, 0.11);
+      R("#0d1119", dim, 92, 36, 34, 20); R("#8fd6b8", dim, 93, 37, 32, 18); R("#b9f0d8", dim, 97, 41, 24, 1); R("#b9f0d8", dim, 97, 45, 18, 1); R("#b9f0d8", dim, 97, 49, 22, 1);
+      R("#2b3854", dim, 107, 56, 4, 4); R("#2b3854", dim, 102, 60, 14, 2);
+      R("#8fd6b8", 1, 150, 34, 2, 2);
       if (st.dev >= 3) {
-        x.fillStyle = "#0d1119"; x.fillRect(494, 164, 86, 62);
-        scr("#a9e3cb"); x.fillRect(498, 168, 78, 54);
-        x.globalAlpha = 1; x.fillStyle = "#2b3854";
-        x.fillRect(528, 226, 14, 18);
-        x.strokeStyle = "#4e6087"; x.lineWidth = 5;
-        x.beginPath(); x.moveTo(560, 252); x.lineTo(560, 136); x.lineTo(520, 126); x.stroke();
-        x.fillStyle = "#3a4a70"; x.beginPath(); x.arc(516, 126, 10, 0, Math.PI * 2); x.fill();
+        R("#0d1119", dim, 128, 40, 24, 16); R("#bff0dd", dim, 129, 41, 22, 14); R("#d8f7ea", dim, 132, 45, 16, 1); R("#d8f7ea", dim, 132, 49, 11, 1);
+        R("#2b3854", dim, 138, 56, 4, 4);
+        R("#6b7fa8", 1, 150, 30, 2, 28); R("#6b7fa8", 1, 139, 28, 13, 2);
+        R("#4a5c85", 1, 136, 26, 4, 4); R("#b9c8e2", 1, 137, 27, 2, 1);
       }
     }
     // 机への照り返し / 床の光だまり
     const refl = st.dev >= 2 ? 1 : 0.55;
-    x.fillStyle = `rgba(126,200,169,${(0.10 * dim * refl).toFixed(3)})`;
-    x.fillRect(360, 250, 240, 10);
-    const fg = x.createRadialGradient(450, 322, 6, 450, 322, 130);
-    fg.addColorStop(0, `rgba(126,200,169,${(0.09 * dim * refl).toFixed(3)})`);
-    fg.addColorStop(1, "rgba(126,200,169,0)");
-    x.fillStyle = fg; x.beginPath(); x.ellipse(450, 322, 135, 26, 0, 0, Math.PI * 2); x.fill();
-    x.globalAlpha = 1;
+    R(`rgba(126,200,169,${(0.13 * dim * refl).toFixed(3)})`, 1, 90, 58, 56, 2);
+    R(`rgba(126,200,169,${(0.08 * dim * refl).toFixed(3)})`, 1, 100, 66, 40, 4);
   }
+
   function bar(k, label, v, cls) {
     return `<div class="statrow"><span class="k">${label}</span><span class="bar"><i class="${cls || ""}" style="width:${Math.round(v)}%"></i></span><span class="v">${Math.round(v)}</span></div>`;
   }
@@ -739,7 +699,7 @@ window.HK = window.HK || {};
     ctx.fillStyle = "#0b0f14"; ctx.fillRect(0, 0, W, H);
     ctx.strokeStyle = "#233040"; ctx.lineWidth = 3; ctx.strokeRect(40, 40, W - 80, H - 80);
     ctx.fillStyle = "#ff8a3d"; ctx.font = "700 40px 'Noto Sans JP', sans-serif";
-    ctx.fillText("2万分の1のヒカマー", 90, 145);
+    ctx.fillText("10万分の1のヒカマー", 90, 145);
     ctx.fillStyle = "#7d8ea3"; ctx.font = "24px 'Noto Sans JP', sans-serif";
     ctx.fillText(`— ${r.era}年参入（${r.eraName}）・界隈歴 ${fmt(r.days)}日 —`, 90, 188);
     ctx.fillStyle = "#e8eef5"; ctx.font = "700 60px 'Noto Sans JP', sans-serif";
@@ -780,7 +740,7 @@ window.HK = window.HK || {};
     ctx.fillText(`約 1 / ${fmt(1 / r.product)}`, 90, y);
     ctx.fillStyle = "#54657a"; ctx.font = "20px 'Noto Sans JP', sans-serif";
     ctx.fillText("出典: ヒカマーWiki・Hikabooru・810ch・ヒカマーズ8values ほか（詳細はサイトの「しくみ」へ）", 90, H - 105);
-    ctx.fillText("人口検査(2026-10): 名乗り調査より全ヒカマー ≈ 3,000〜8,000人 → 約2万分の1。この記録はフィクションです。", 90, H - 70);
+    ctx.fillText("人口検査(2026-10): TLログ実測より活動中 ≈ 500〜1,500人 → 約10万分の1。この記録はフィクションです。", 90, H - 70);
   }
   function wrapText(ctx, text, x, y, maxW, lineH, maxLines) {
     const chars = text.split(""); let line = "", lines = [];
@@ -1214,7 +1174,7 @@ window.HK = window.HK || {};
       a.href = $("cardCanvas").toDataURL("image/png");
       a.click();
     });
-    const copyText = r => `${r.handle}（${r.name}）\n${r.era}年参入 → ${r.endStr}・界隈歴 ${fmt(r.days)}日\n称号: ${r.title}（${r.rank}）／終わり方: ${r.endingName}\n最高フォロワー ${fmt(r.peak)}・希少度 約1/${fmt(1 / r.product)}\n#2万分の1のヒカマー https://hikamerlife.hikamers.app/`;
+    const copyText = r => `${r.handle}（${r.name}）\n${r.era}年参入 → ${r.endStr}・界隈歴 ${fmt(r.days)}日\n称号: ${r.title}（${r.rank}）／終わり方: ${r.endingName}\n最高フォロワー ${fmt(r.peak)}・希少度 約1/${fmt(1 / r.product)}\n#10万分の1のヒカマー https://hikamerlife.hikamers.app/`;
     $("btnCopy").addEventListener("click", async () => {
       const r = currentShownRecord || (S ? recordFromState(S) : null);
       if (!r) return;
@@ -1258,8 +1218,8 @@ window.HK = window.HK || {};
     $("aboutData").innerHTML = `
       <li>名乗り調査(2026-10-15): 界隈ネットワークの実測ハンドル1,152件のうち、<b>_mania等のマーカー付きは23.8%</b>（残り76.2%は無印名義）。ヒカマーの名乗りは「_mania」だけではない</li>
       <li>Wiki「ヒカマー一覧」を実測: <b>1,266件</b>（うちマーカー風 約46%・bot系49件）</li>
-      <li>マーカー限定の捕獲再捕獲 ≈ 1,300〜4,300 → マーカー比率で割り戻した全ヒカマー ≈ <b>3,000〜8,000人（代表値5,000）</b></li>
-      <li>日本のネット人口 約1億人 ÷ 5,000 ≒ <b>2万分の1</b>（幅を取ると1.3万〜3万分の1）＝ タイトルの根拠</li>
+      <li>さらにTLログ実測: ヒカマー文庫（2025年4〜9月・157日分）に現れたのはユニーク<b>280人</b>・月あたり60〜100人</li>
+      <li>累積名簿ではなく活動中で数えると ≈ <b>500〜1,500人（代表値1,000）</b> → 1億人 ÷ 1,000 ≒ <b>10万分の1</b>（幅を取ると6.7万〜20万分の1）＝ タイトルの根拠</li>
       <li>参考: ツイッタラ世論調査「ヒカマー」= 951票・総合2.97・肯定55.4%</li>
       <li>ヒカマーWiki 記事${m.wikiArticles}・利用者187（2026-08）／Hikabooru 投稿${fmt(m.booruPosts)}件・タグ${fmt(m.booruTags)}件／ニコニコ「Hikakin_mania」${fmt(m.nicoHikamani)}本／8values ${m.f8values}件</li>
       <li>時代・事件の記述は、ヒカマーWiki（ヒカマー史・炎上一覧・内戦一覧・Handbooks）と810chの実データに基づく</li>`;

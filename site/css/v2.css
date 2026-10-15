@@ -36,7 +36,7 @@
 .memform { display: flex; gap: 8px; margin-top: 8px; }
 .meminp { flex: 1; background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 6px 10px; font-size: 13px; }
 /* v3.2追加: 部屋シーン / つづきから */
-#sceneCv { width: 100%; height: auto; display: block; border-radius: 10px; }
+#sceneCv { width: 100%; height: auto; display: block; border-radius: 10px; image-rendering: pixelated; }
 #btnResume { margin-top: 10px; }
 /* v3.3追加: みんなのメモリアル */
 .memtabs { display: flex; gap: 8px; margin-bottom: 12px; }

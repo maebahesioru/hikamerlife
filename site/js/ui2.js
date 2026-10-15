@@ -21,6 +21,10 @@ window.HK = window.HK || {};
   const SAVE_KEY = "hk4m2.save";
   const MEM_API = (location.hostname === "127.0.0.1" || location.hostname === "localhost") ? "https://hikamerlife.hikamers.app/api" : "/api";
   let memTab = "local";
+  const litSet = () => LS.get("hk4m2.lit", []);
+  const markLit = id => { const s = litSet(); if (!s.includes(id)) { s.push(id); LS.set("hk4m2.lit", s.slice(-500)); } };
+  const pubHash = r => `${r.handle}|${r.days}|${r.era}|${r.title}`;
+  const pubSet = () => LS.get("hk4m2.pub", []);
 
   let S = null;
   let timer = null;
@@ -493,7 +497,7 @@ window.HK = window.HK || {};
   function renderComp() {
     $("compBox").innerHTML = S.companions.map(c => {
       const st = c.stage >= c.lines.length ? "消息わずか" : "活動中";
-      return `<div class="comp"><b>${esc(c.name)}</b><span class="dim">${S.dayNum >= c.next - 40 ? st : "…"}</span></div>`;
+      return `<div class="comp"><b>${esc(c.name)}</b><span class="dim">${S.dayNum >= c.next - 40 ? st : "…"}・${fmt(c.followers)}人</span></div>`;
     }).join("");
   }
   function renderMap() {
@@ -740,7 +744,7 @@ window.HK = window.HK || {};
     const list = LS.get(MEM_KEY, []);
     const tabs = `<div class="memtabs"><button class="chip ${memTab === "local" ? "on" : ""}" data-mtab="local">あなたの記録</button><button class="chip ${memTab === "public" ? "on" : ""}" data-mtab="public">みんなのメモリアル</button></div>`;
     if (memTab === "public") {
-      $("memList").innerHTML = tabs + `<div id="memPub" class="dim small">読み込み中…</div>`;
+      $("memList").innerHTML = tabs + `<div class="pubbar"><button class="chip" id="btnRandMem">🎲 ランダムに見る</button><span class="dim small" id="memTotal"></span></div><div id="memPub" class="dim small">読み込み中…</div>`;
       $("memList").querySelectorAll("[data-mtab]").forEach(b => b.onclick = () => { memTab = b.dataset.mtab; showMemorial(); });
       renderPublicMemorial();
       show("memorial");
@@ -798,33 +802,90 @@ window.HK = window.HK || {};
         return;
       }
       box.classList.remove("small", "dim");
-      box.innerHTML = data.list.map(m => `
-        <div class="memcard">
+      const lit = litSet();
+      box.innerHTML = data.list.map(m => {
+        const isLit = lit.includes(m.id);
+        return `
+        <div class="memcard" data-card="${esc(m.id)}">
           <div class="memhead"><span class="rank r-${esc(m.r)} small">${esc(m.r)}</span><b>@${esc(m.h)}</b><span class="dim small">${esc(m.n)}</span></div>
           <div class="dim small">${m.e}年参入 ・ 界隈歴 ${fmt(m.d)}日 ・ ${esc(m.g)}</div>
           <div class="memtitle">${esc(m.t)}</div>
           ${m.ds ? `<div class="dim small">${esc(m.ds)}</div>` : ""}
           <div class="membottom"><span class="dim small">${new Date(m.at).toLocaleDateString("ja-JP")}</span>
-          <button class="candle" data-pub="${esc(m.id)}">🕯 ${m.c || 0}</button></div>
-        </div>`).join("");
+          <span><button class="candle" data-msgs="${esc(m.id)}">💬 ひとこと</button>
+          ${isLit ? `<button class="candle" disabled>🕯 灯済み ${m.c || 0}</button>` : `<button class="candle" data-pub="${esc(m.id)}">🕯 ${m.c || 0}</button>`}</span></div>
+          <div class="pubmsgs" data-box="${esc(m.id)}" hidden></div>
+        </div>`;
+      }).join("");
+      const totEl = $("memTotal");
+      if (totEl) totEl.textContent = `${data.total}件の記録`;
       box.querySelectorAll("[data-pub]").forEach(b => {
         b.onclick = async () => {
           b.disabled = true;
           try {
             const r2 = await fetch(MEM_API + "/candle", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: b.dataset.pub }) });
             const d2 = await r2.json();
-            if (d2.ok) { b.textContent = "🕯 " + d2.c; toast("ろうそくを灯した", "hk"); }
+            if (d2.ok) { markLit(b.dataset.pub); b.textContent = "🕯 灯済み " + d2.c; toast("ろうそくを灯した", "hk"); }
             else { b.disabled = false; toast("灯せなかった"); }
           } catch (e) { b.disabled = false; toast("通信に失敗した"); }
         };
       });
+      box.querySelectorAll("[data-msgs]").forEach(b => b.onclick = () => openPubMsgs(b.dataset.msgs));
+      const rb = $("btnRandMem");
+      if (rb) rb.onclick = () => {
+        const cards = box.querySelectorAll(".memcard");
+        if (!cards.length) return;
+        const c = cards[Math.floor(Math.random() * cards.length)];
+        c.scrollIntoView({ behavior: "smooth", block: "center" });
+        c.classList.add("flash");
+        setTimeout(() => c.classList.remove("flash"), 1600);
+      };
     } catch (e) {
       box.innerHTML = `<div class="dim">読み込めなかった（通信エラー）。もう一度開いてみて。</div>`;
     }
   }
+  async function openPubMsgs(id) {
+    const box = document.querySelector(`[data-box="${id}"]`);
+    if (!box) return;
+    if (!box.hidden) { box.hidden = true; return; }
+    box.hidden = false;
+    box.innerHTML = `<div class="dim small">読み込み中…</div>`;
+    try {
+      const res = await fetch(MEM_API + "/msgs?id=" + encodeURIComponent(id));
+      const data = await res.json();
+      renderMsgs(id, box, data.list || []);
+    } catch (e) {
+      box.innerHTML = `<div class="dim small">読み込めなかった</div>`;
+    }
+  }
+  function renderMsgs(id, box, list) {
+    box.innerHTML = (list.length
+      ? list.map(m => `<div class="memmsg"><span class="dim small">${new Date(m.ts).toLocaleDateString("ja-JP")}</span> ${esc(m.t)}</div>`).join("")
+      : `<div class="dim small">まだ、ひとことはない。</div>`) +
+      `<div class="memform"><input class="meminp" maxlength="60" placeholder="ひとことを残す（60字まで）"><button class="candle" data-msend>残す</button></div>`;
+    const send = box.querySelector("[data-msend]");
+    const inp = box.querySelector(".meminp");
+    send.onclick = async () => {
+      const text = (inp.value || "").trim();
+      if (!text) { inp.focus(); return; }
+      send.disabled = true;
+      try {
+        const r = await fetch(MEM_API + "/msg", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, text }) });
+        const d = await r.json();
+        if (d.ok) {
+          toast("ひとことを残した", "hk");
+          const r2 = await fetch(MEM_API + "/msgs?id=" + encodeURIComponent(id));
+          const dd = await r2.json();
+          renderMsgs(id, box, dd.list || []);
+        } else { send.disabled = false; toast(d.why === "rate" ? "少し時間をおいてから" : "残せなかった"); }
+      } catch (e) { send.disabled = false; toast("通信に失敗した"); }
+    };
+  }
   async function publishRecord() {
     const r = currentShownRecord || (S ? recordFromState(S) : null);
     if (!r) return;
+    const h = pubHash(r);
+    if (pubSet().includes(h)) { toast("この記録はもう公開してある"); return; }
     if (!confirm("この界隈歴を公開メモリアルに残す？（@ハンドル・称号・日数などが誰でも見られる）")) return;
     const b = $("btnPublish");
     b.disabled = true;
@@ -834,7 +895,10 @@ window.HK = window.HK || {};
         body: JSON.stringify({ handle: r.handle, name: r.name, era: r.era, days: r.days, title: r.title, rank: r.rank, ending: r.endingName, desc: r.desc })
       });
       const data = await res.json();
-      if (data.ok) { b.textContent = "公開した 🕯"; toast("みんなのメモリアルに残した（反映に少し時間がかかることがある）", "hk"); }
+      if (data.ok) {
+        const s = pubSet(); s.push(h); LS.set("hk4m2.pub", s.slice(-200));
+        b.textContent = "公開した 🕯"; toast("みんなのメモリアルに残した（反映に少し時間がかかることがある）", "hk");
+      }
       else { b.disabled = false; toast("残せなかった"); }
     } catch (e) { b.disabled = false; toast("通信に失敗した"); }
   }

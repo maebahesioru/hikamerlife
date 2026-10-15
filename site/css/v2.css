@@ -43,3 +43,8 @@
 .memtabs .chip { background: var(--panel2); border: 1px solid var(--border); color: var(--dim); border-radius: 999px; padding: 5px 16px; font-size: 13px; cursor: pointer; }
 .memtabs .chip.on { background: #3d2b12; border-color: #7a5a2a; color: var(--acc2); font-weight: 700; }
 .memsum { margin-bottom: 10px; color: var(--dim); font-size: 13px; }
+/* v3.4追加: みんなのメモリアル ひとこと・ランダム */
+.pubbar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.pubbar .chip { background: var(--panel2); border: 1px solid var(--border); color: var(--dim); border-radius: 999px; padding: 5px 14px; font-size: 13px; cursor: pointer; }
+.memcard.flash { outline: 2px solid var(--acc); outline-offset: 2px; }
+.candle[disabled] { opacity: .55; }

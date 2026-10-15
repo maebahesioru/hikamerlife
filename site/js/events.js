@@ -72,7 +72,7 @@ HK.EVENTS = [
   /* ---- イベント（バズ・成功） ---- */
   { id: "h_buzz_small", phase: "hk", ages: [13, 60], w: 5, cond: S => S.hk.skill >= 15 || S.hk.goroku >= 50, fx: { fame: 300, happy: 3 }, t: "まあまあ伸びた。通知が100件を超えると、スマホが少し重くなる。" },
   { id: "h_buzz_big", phase: "hk", ages: [13, 60], w: 2, cond: S => S.hk.skill >= 40 || S.hk.goroku >= 70, fx: { fame: 3000, happy: 5, mental: 2 }, t: "バズった。見知らぬ大物アカウントの引用が並び、あなたはTLの主役になった。数日間だけ。" },
-  { id: "h_buzz_viral", phase: "hk", ages: [13, 60], w: 1, cond: S => S.hk.skill >= 65 || S.hk.goroku >= 85, fx: { fame: 15000, happy: 6, fameRisk: 5 }, t: "大バズ。あなたの投稿が界隈の外まで流れた。フォロワー通知が止まらない夜は、少し怖かった。" },
+  { id: "h_buzz_viral", phase: "hk", ages: [13, 60], w: 2, cond: S => (S.hk.skill >= 65 || S.hk.goroku >= 85) && (S.hk._virals || 0) < 2, fx: { fame: 15000, happy: 6, fameRisk: 5, viral: true }, t: "大バズ。あなたの投稿が界隈の外まで流れた。フォロワー通知が止まらない夜は、少し怖かった。" },
   { id: "h_creator_debut", phase: "hk", ages: [13, 25], w: 3, cond: S => S.hk.skill >= 40, once: true, fx: { fame: 200, skill: 3 }, t: "初めての作品を投稿した。再生数は112。だがそのうち数人は、ずっとあなたの作品を見ていく人になった。" },
   { id: "h_collab", phase: "hk", ages: [13, 25], w: 3, cond: S => S.hk.skill >= 50, fx: { fame: 500, skill: 5, rel: 2 }, t: "合作に参加した。名義がエンドロールに並ぶ。あなたの名前は、誰かの名前の隣にあった。" },
   { id: "h_money_first", phase: "hk", ages: [15, 40], w: 2, cond: S => S.hk.followers >= 3000, once: true, fx: { money: 10000, happy: 2 }, t: "初めての収入。数百円。嫌儲の界隈で、それは実績であり、後ろめたさでもあった。" },
@@ -145,6 +145,11 @@ HK.DECISIONS = [
     choices: [
       { label: "機材とソフトを揃える", t: "小遣いを全部使った。最初の作品は、無音だった（音の出し方が分からなかった）。それでも、あなたは笑った。", fx: { skill: 8, money: -30000, happy: 2 } },
       { label: "眺めている", t: "あなたは完成品だけを楽しむことにした。作る人の凄さを、誰よりも知っている眺め方だった。", fx: { happy: 1, goroku: 1 } }
+    ] },
+  { id: "d_bigp", phase: "hk", ages: [14, 45], w: 4, once: true, cond: S => (S.hk.skill >= 55 || S.hk.goroku >= 70), prompt: "あなたの投稿が、じわじわ伸び始めている。通知が止まらない。この波に乗るか、静かに見送るか。",
+    choices: [
+      { label: "追い投稿で畳みかける", t: "畳みかけた。三日間、あなたのプロフィールには知らない人たちが並んだ。", fx: { fame: 9000, skill: 2, happy: 3, fameRisk: 6, flags: ["buzzmaster"] } },
+      { label: "静かに見送る", t: "あなたは追加の投稿をしなかった。波は引いた。だが海は覚えている。", fx: { happy: 1, mental: 2 } }
     ] },
   { id: "d_hook2", phase: "pre", ages: [13, 16], w: 8, once: true, cond: S => !S.flags.includes("pre_hooked") && !S.flags.includes("joined"), prompt: "ニコニコ動画のランキングに、見慣れない動画が上がっていた。切り抜きの男が、変なことを言わされている。",
     choices: [

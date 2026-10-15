@@ -235,6 +235,7 @@ window.HK = window.HK || {};
     if (fx.flags) fx.flags.forEach(f => { if (!S.flags.includes(f)) S.flags.push(f); });
     if (fx.zukan) fx.zukan.forEach(id => unlockZukan(S, id));
     if (fx.join) doJoin(S);
+    if (fx.viral) S.hk._virals = (S.hk._virals || 0) + 1;
     if (fx.retire) doRetire(S);
     hk.peakFollowers = Math.max(hk.peakFollowers, hk.followers);
     if (S.money < -5000000) S.money = -5000000;
@@ -403,7 +404,8 @@ window.HK = window.HK || {};
         if (!/^[\w\s<>=!&|().+*\[\]"'%,-]+$/.test(t.cond)) continue;
         const f = new Function("S", "fame", "joinAge", "nareai", "skill", "goroku", "mental", "age", "retireCount", "flags",
           `return (${t.cond});`);
-        if (f(S, S.hk.followers, S.hk.joinAge, S.hk.nareai, S.hk.skill, S.hk.goroku, S.stats.mental, S.age, S.hk.retireCount, S.flags)) {
+        // fame は「現在値」ではなく生涯ピークで判定する
+        if (f(S, S.hk.peakFollowers, S.hk.joinAge, S.hk.nareai, S.hk.skill, S.hk.goroku, S.stats.mental, S.age, S.hk.retireCount, S.flags)) {
           return t;
         }
       } catch (e) { /* ignore */ }

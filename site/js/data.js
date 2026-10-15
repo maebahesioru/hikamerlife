@@ -81,7 +81,7 @@ HK.DATA = {
 
   /* ---- 称号（人生の終わりに判定） ---- */
   titles: [
-    { id: "densetsu", rank: "S", name: "伝説のヒカマー", cond: "fame>=30000", desc: "あなたの名前は、Wikiの記事より先に伝説になった。" },
+    { id: "densetsu", rank: "S", name: "伝説のヒカマー", cond: "fame>=20000", desc: "あなたの名前は、Wikiの記事より先に伝説になった。" },
     { id: "kyoso", rank: "S", name: "教祖", cond: "fame>=15000 && nareai>=60", desc: "あなたの周りには、いつも人がいた。それは崇拝に近かった。" },
     { id: "kami", rank: "S", name: "界隈の夜明け前", cond: "joinAge && joinAge<=13 && fame>=5000", desc: "古参の中の古参。あなたのポストは化石資料として引用される。" },
     { id: "yusan", rank: "A", name: "有産の鑑", cond: "skill>=70 && fame>=3000", desc: "作れば伸びる。界隈の動画欄はあなたが作ったと言ってもいい。" },
@@ -89,6 +89,8 @@ HK.DATA = {
     { id: "resuban", rank: "A", name: "レスバ無敗", cond: "flags.includes('resuban') && fame>=2000", desc: "勝った者が正しい界隈で、あなたは常に勝った。" },
     { id: "nareai", rank: "B", name: "馴れ合いの申し子", cond: "nareai>=50", desc: "ありが🈵。あなたのリプ欄はいつも温かかった。" },
     { id: "goroku", rank: "B", name: "名言の使い手", cond: "goroku>=75", desc: "あなたが語録を使うと、なぜか本来より面白かった。" },
+    { id: "chuken", rank: "B", name: "どこにでもいる中堅", cond: "fame>=1000 && fame<3000 && skill<60", desc: "一軍と二軍の間。だがTLの会話は、あなたのような人たちでできている。" },
+    { id: "bakuhu", rank: "B", name: "バズの残り香", cond: "fame>=3000 && skill<50", desc: "大きな音を立ててバズったが、作品は残らなかった。それも一つの伝説だ。" },
     { id: "alq", rank: "B", name: "アルカイダーの生き残り", cond: "flags.includes('alqaeda')", desc: "何度凍結されても帰ってきた。あなたはTLの天気だった。" },
     { id: "unei", rank: "B", name: "運営の影", cond: "flags.includes('builder')", desc: "表舞台には出ない。だが界隈の道具はあなたが作った。" },
     { id: "bubble", rank: "C", name: "泡沫ヒカマー", cond: "joinAge && fame<200", desc: "泡のように現れ、泡のように消えた。それも大多数の人生だ。" },

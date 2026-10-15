@@ -2,9 +2,9 @@
    使い方: node test/sim.js [n] [random|amb]
 */
 global.window = global;
-require("../js/data.js");
-require("../js/events.js");
-require("../js/engine.js");
+require("../site/js/data.js");
+require("../site/js/events.js");
+require("../site/js/engine.js");
 
 const N = parseInt(process.argv[2] || "300", 10);
 const ST = process.argv[3] || "random";

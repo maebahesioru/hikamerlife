@@ -671,25 +671,27 @@ window.HK = window.HK || {};
     return fmt(v);
   }
   function recordFromState(S) {
-    const starLines = [];
+    const picks = [];
     const seen = new Set();
-    Object.keys(S.starred).forEach(i => {
-      const l = S.log[Number(i)];
-      if (l && !seen.has(l.text.slice(0, 40))) {
+    Object.keys(S.starred).map(Number).sort((a, b) => a - b).forEach(i => {
+      const l = S.log[i];
+      if (l && !seen.has(l.text.slice(0, 40)) && picks.length < 16) {
         seen.add(l.text.slice(0, 40));
-        starLines.push(`「${l.text.slice(0, 90)}」（${l.day}日目）`);
+        picks.push({ day: l.day, text: l.text.slice(0, 90) });
       }
     });
-    if (!starLines.length) {
-      const mem = S.log.filter(l => ["hk", "decision", "doxx", "debut", "milestone", "ending", "freeze"].includes(l.kind));
-      for (let i = 0; i < 3 && mem.length; i++) {
-        const pick = mem.splice(Math.floor(Math.random() * mem.length), 1)[0];
-        const key = pick.text.slice(0, 40);
-        if (seen.has(key)) continue;
-        seen.add(key);
-        starLines.push(`「${pick.text.slice(0, 90)}」（${pick.day}日目）`);
+    // 足りない分は印象的な行で補って、アルバムを最低12枚にする
+    if (picks.length < 12) {
+      const kinds = ["milestone", "decision", "freeze", "doxx", "ending", "debut", "revive", "comp", "hk", "cal"];
+      const pool = S.log.filter(l => kinds.includes(l.kind) && !seen.has(l.text.slice(0, 40)));
+      while (picks.length < 12 && pool.length) {
+        const pick = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+        seen.add(pick.text.slice(0, 40));
+        picks.push({ day: pick.day, text: pick.text.slice(0, 90) });
       }
     }
+    picks.sort((a, b) => a.day - b.day);
+    const starLines = picks.map(p => `「${p.text}」（${p.day}日目）`);
     return {
       name: S.name, handle: S.handle, sex: S.sex, era: S.era.year, eraName: S.era.name,
       startStr: HK.engine2.fmtDate(S.startDate), endStr: HK.engine2.fmtDate(S.date),
@@ -943,6 +945,41 @@ window.HK = window.HK || {};
       else { b.disabled = false; toast("残せなかった"); }
     } catch (e) { b.disabled = false; toast("通信に失敗した"); }
   }
+  /* ---------- アルバム / フィルム（keepx相当の簡易版） ---------- */
+  let albumRec = null, filmIdx = 0, filmTimer = null;
+  const ALBUM_ICONS = ["🎞", "📷", "🖥", "🎧", "📝", "🌙", "⚡", "🧃", "🧩", "📼"];
+  function openAlbum() {
+    const r = currentShownRecord || (S ? recordFromState(S) : null);
+    if (!r) return;
+    albumRec = r;
+    $("albumTitle").textContent = "アルバム";
+    $("albumWho").textContent = `${r.title} — ${r.name}／@${r.handle}・界隈歴 ${fmt(r.days)}日`;
+    $("albumGrid").innerHTML = (r.lines || []).length
+      ? r.lines.map((l, i) => `<div class="polacard"><div class="polapic">${ALBUM_ICONS[i % ALBUM_ICONS.length]}</div><div class="polatext">${esc(l)}</div></div>`).join("")
+      : `<div class="dim">思い出はまだ空っぽだ。</div>`;
+    $("albumOv").hidden = false;
+  }
+  function closeAlbum() { stopFilm(); $("albumOv").hidden = true; }
+  function startFilm() {
+    const r = albumRec;
+    if (!r || !(r.lines || []).length) return;
+    filmIdx = 0;
+    $("filmOv").hidden = false;
+    renderFilm();
+    clearInterval(filmTimer);
+    filmTimer = setInterval(() => { filmIdx = (filmIdx + 1) % r.lines.length; renderFilm(); }, 2600);
+  }
+  function renderFilm() {
+    const r = albumRec;
+    if (!r) return;
+    const el = $("filmCard");
+    el.textContent = r.lines[filmIdx] || "";
+    el.classList.remove("on");
+    void el.offsetWidth;
+    el.classList.add("on");
+    $("filmCount").textContent = `${filmIdx + 1} / ${r.lines.length}`;
+  }
+  function stopFilm() { clearInterval(filmTimer); filmTimer = null; $("filmOv").hidden = true; }
   function renderEndingRecord(m) {
     currentShownRecord = m;
     displayEnding(m);
@@ -1076,6 +1113,12 @@ window.HK = window.HK || {};
       });
     }
     $("btnMemorial").addEventListener("click", () => { if (S && !S.ended) return; saveMemorial(); showMemorial(); });
+    $("btnAlbum").addEventListener("click", openAlbum);
+    $("albumClose").addEventListener("click", closeAlbum);
+    $("btnFilm").addEventListener("click", startFilm);
+    $("filmStop").addEventListener("click", stopFilm);
+    $("filmNext").addEventListener("click", () => { if (!albumRec) return; filmIdx = (filmIdx + 1) % albumRec.lines.length; renderFilm(); });
+    $("filmPrev").addEventListener("click", () => { if (!albumRec) return; filmIdx = (filmIdx - 1 + albumRec.lines.length) % albumRec.lines.length; renderFilm(); });
     $("btnPublish").addEventListener("click", publishRecord);
     $("btnAgain").addEventListener("click", () => { S = null; currentShownRecord = null; show("start"); });
     $("btnAgain2").addEventListener("click", () => { S = null; currentShownRecord = null; show("start"); });

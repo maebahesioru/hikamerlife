@@ -205,6 +205,7 @@
     <div class="deathbtns">
       <button class="btn sub" id="btnDownload">共有カードを保存</button>
       <button class="btn sub" id="btnCopy">記録をコピー</button>
+      <button class="btn sub" id="btnAlbum">アルバム</button>
       <button class="btn sub" id="btnShare" style="display:none">共有…</button>
       <button class="btn sub" id="btnMemorial">メモリアルに納める</button>
       <button class="btn sub" id="btnPublish">みんなのメモリアルに残す</button>
@@ -293,6 +294,27 @@
 </div>
 
 <div id="toasts"></div>
+
+<!-- ================= アルバム ================= -->
+<div id="albumOv" hidden>
+  <div class="albumhead">
+    <b id="albumTitle">アルバム</b>
+    <span class="dim small" id="albumWho"></span>
+    <span style="flex:1"></span>
+    <button class="candle" id="btnFilm">▶ フィルム再生</button>
+    <button class="candle" id="albumClose">閉じる</button>
+  </div>
+  <div class="albumgrid" id="albumGrid"></div>
+  <div id="filmOv" hidden>
+    <div class="filmcard" id="filmCard"></div>
+    <div class="filmctrl">
+      <button class="candle" id="filmPrev">←</button>
+      <span class="dim small" id="filmCount">1 / 1</span>
+      <button class="candle" id="filmNext">→</button>
+      <button class="candle" id="filmStop">✕ 再生を止める</button>
+    </div>
+  </div>
+</div>
 
 <script src="js/data2.js"></script>
 <script src="js/events2.js"></script>

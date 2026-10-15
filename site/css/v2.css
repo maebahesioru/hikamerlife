@@ -63,3 +63,17 @@
 .certcard .dots i.on { background: var(--acc); }
 .certstory { font-size: 13px; color: var(--text); margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
 #btnEnterLife { margin-top: 20px; }
+/* v3.6追加: アルバム / フィルム */
+#albumOv { position: fixed; inset: 0; background: rgba(8,10,16,.93); z-index: 60; overflow: auto; padding: 18px; }
+#albumOv[hidden], #filmOv[hidden] { display: none !important; }
+.albumhead { display: flex; align-items: center; gap: 10px; max-width: 900px; margin: 0 auto 14px; }
+.albumgrid { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; padding-bottom: 30px; }
+.polacard { background: #1b2333; border: 1px solid var(--border); border-radius: 10px; padding: 10px; box-shadow: 0 6px 18px rgba(0,0,0,.4); transform: rotate(-1deg); }
+.polacard:nth-child(3n) { transform: rotate(1.2deg); }
+.polacard:nth-child(4n) { transform: rotate(-.4deg); }
+.polapic { font-size: 26px; text-align: center; margin-bottom: 6px; }
+.polatext { font-size: 12px; color: var(--text); line-height: 1.5; }
+#filmOv { position: fixed; inset: 0; background: rgba(5,7,12,.97); z-index: 70; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 20px; }
+.filmcard { max-width: 640px; font-size: 19px; line-height: 1.9; color: var(--text); text-align: center; opacity: 0; transform: translateY(8px); transition: opacity .6s ease, transform .6s ease; }
+.filmcard.on { opacity: 1; transform: none; }
+.filmctrl { display: flex; gap: 10px; align-items: center; }

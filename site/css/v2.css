@@ -14,3 +14,24 @@
 .logline.k-fade { color: var(--dim); }
 #endTypeName { color: var(--acc2); }
 .deathwrap #endTitle { font-size: 40px; margin: 10px 0 4px; }
+/* v3追加: 参入証 */
+#certBox .certno { font-size: 11px; color: var(--dim); letter-spacing: .12em; margin-bottom: 6px; }
+#certBox .certrow { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; padding: 3px 0; border-bottom: 1px dashed var(--border); }
+#certBox .certrow:last-child { border-bottom: 0; }
+#certBox .certrow span { color: var(--dim); flex: 0 0 64px; }
+#certBox .certrow b { text-align: right; font-weight: 600; }
+/* v3追加: 界隈地図 拡張 */
+.mapgrid i.m4 { background: #b9f0a8; }
+.mapgrid i.med { outline: 2px solid var(--acc); outline-offset: 1px; }
+/* v3追加: 継続曲線 v2 */
+.sv-grid { stroke: #223041; stroke-width: 1; }
+.sv-tick { fill: #54657a; font-size: 9px; }
+.sv-line { fill: none; stroke: #58a6ff; stroke-width: 2; }
+.sv-med { stroke: var(--acc); stroke-width: 1; stroke-dasharray: 3 3; opacity: .85; }
+.sv-you { fill: var(--acc); stroke: #0e1420; stroke-width: 2; }
+.sv-lbl { fill: var(--text); font-size: 10px; font-weight: 700; }
+/* v3追加: メモリアル ひとこと */
+.memmsgs { margin-top: 8px; border-top: 1px dashed var(--border); padding-top: 6px; }
+.memmsg { font-size: 13px; padding: 2px 0; }
+.memform { display: flex; gap: 8px; margin-top: 8px; }
+.meminp { flex: 1; background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 6px 10px; font-size: 13px; }

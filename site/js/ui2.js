@@ -1,5 +1,5 @@
 /* =========================================================
-   4万分の1のヒカマー v2 — UI（日単位・時代くじ・引退エンド）
+   2万分の1のヒカマー v3 — UI（日単位・時代くじ・引退エンド）
    ========================================================= */
 window.HK = window.HK || {};
 
@@ -218,13 +218,25 @@ window.HK = window.HK || {};
   /* ---------- レンダリング ---------- */
   function renderAll() {
     if (!S) return;
-    renderHeader(); renderStats(); renderHk(); renderFocus(); renderLog(); renderComp(); renderMap(); renderSurv();
+    renderHeader(); renderCert(); renderStats(); renderHk(); renderFocus(); renderLog(); renderComp(); renderMap(); renderSurv();
   }
   function renderHeader() {
     $("lifeHandle").textContent = S.handle;
     $("lifeAge").textContent = S.age + "歳";
     $("lifeYear").textContent = HK.engine2.fmtDate(S.date);
     $("lifeDay").textContent = "Day " + S.dayNum;
+  }
+  function renderCert() {
+    const p = D().paths.find(x => x.id === S.pathId) || { label: "—" };
+    const t = D().triggers.find(x => x.id === S.triggerId) || { label: "—" };
+    const no = "No. " + S.era.year + "-" + String(S.seed % 1000000).padStart(6, "0");
+    $("certBox").innerHTML = `
+      <div class="certno">${no}</div>
+      <div class="certrow"><span>ハンドル</span><b>${esc(S.handle)}</b></div>
+      <div class="certrow"><span>参入</span><b>${S.era.year}年・${S.startAge}歳</b></div>
+      <div class="certrow"><span>経緯</span><b>${esc(p.label)}</b></div>
+      <div class="certrow"><span>きっかけ</span><b>${esc(t.label)}</b></div>
+      <div class="certrow"><span>環境</span><b>${esc(S.pref)}／${esc(S.family.label)}／${esc(S.net.label)}</b></div>`;
   }
   function bar(k, label, v, cls) {
     return `<div class="statrow"><span class="k">${label}</span><span class="bar"><i class="${cls || ""}" style="width:${Math.round(v)}%"></i></span><span class="v">${Math.round(v)}</span></div>`;
@@ -279,32 +291,50 @@ window.HK = window.HK || {};
     }).join("");
   }
   function renderMap() {
-    // 1マス=1週（7日）
-    const weeks = [];
-    for (let w = 0; w * 7 < Math.max(S.dayNum, 1); w++) {
-      const slice = S.days.filter(d => d.day >= w * 7 && d.day < (w + 1) * 7);
-      const avg = slice.length ? slice.reduce((a, b) => a + b.happy, 0) / slice.length : null;
-      weeks.push(avg == null ? "m0" : avg >= 66 ? "m3" : avg >= 44 ? "m2" : avg >= 25 ? "m1" : "m0");
+    // 1マス=1週（7日）・濃いほど充実していた週
+    const W = Math.max(1, Math.ceil(Math.max(S.dayNum, 1) / 7));
+    const sum = new Array(W).fill(0), cnt = new Array(W).fill(0);
+    for (const d of S.days) {
+      const w = Math.floor((d.day - 1) / 7);
+      if (w >= 0 && w < W) { sum[w] += d.happy; cnt[w]++; }
     }
-    $("mapBox").innerHTML = `<div class="mapgrid">${weeks.map(w => `<i class="${w}"></i>`).join("") || "<span class='dim small'>—</span>"}</div><div class="dim small">1マス=1週（色=幸福）</div>`;
+    const med = Math.floor(550 / 7);
+    let html = "";
+    for (let w = 0; w < W; w++) {
+      const avg = cnt[w] ? sum[w] / cnt[w] : null;
+      const lvl = avg == null ? "m0" : avg >= 70 ? "m4" : avg >= 55 ? "m3" : avg >= 40 ? "m2" : avg >= 25 ? "m1" : "m0";
+      html += `<i class="${lvl}${w === med ? " med" : ""}" title="第${w + 1}週${avg != null ? "・幸福 " + Math.round(avg) : ""}"></i>`;
+    }
+    $("mapBox").innerHTML = `<div class="mapgrid">${html}</div>
+      <div class="dim small">1マス = 1週間・明るい色ほど充実していた週（色 = 幸福の平均）。枠付き = 界隈の期待活動寿命（約550日 ≒ 第79週）。</div>`;
   }
   function renderSurv() {
     const n = S.dayNum;
-    const W = 260, H = 90, maxN = Math.max(90, Math.ceil((n + 30) / 30) * 30);
-    const pts = [], ypts = [];
-    for (let i = 0; i <= maxN; i += 5) {
-      const x = 8 + (W - 16) * i / maxN;
-      const p = Math.exp(-i / 550);
-      pts.push(`${x.toFixed(1)},${(H - 12 - (H - 24) * p).toFixed(1)}`);
-      ypts.push(`${x.toFixed(1)},${H - 12}`);
+    const W = 300, H = 122, x0 = 36, x1 = 292, y0 = 12, y1 = 94;
+    const maxN = Math.max(650, Math.ceil((n + 60) / 100) * 100);
+    const X = t => x0 + (x1 - x0) * t / maxN;
+    const Y = p => y1 - (y1 - y0) * p;
+    const P = t => Math.exp(-t / 550);
+    let g = "";
+    for (const p of [0, .25, .5, .75, 1]) {
+      g += `<line x1="${x0}" x2="${x1}" y1="${Y(p).toFixed(1)}" y2="${Y(p).toFixed(1)}" class="sv-grid"/>`;
+      g += `<text x="${x0 - 5}" y="${(Y(p) + 3).toFixed(1)}" text-anchor="end" class="sv-tick">${p * 100}%</text>`;
     }
-    const xYou = 8 + (W - 16) * n / maxN;
-    $("survBox").innerHTML = `
-      <svg viewBox="0 0 ${W} ${H}" class="surv">
-        <polyline points="${pts.join(" ")}" class="surv-line" />
-        <circle cx="${xYou.toFixed(1)}" cy="${(H - 12 - (H - 24) * (S.faded ? 0.2 : 1)).toFixed(1)}" r="3.5" class="surv-you" />
-      </svg>
-      <div class="dim small">モデル: 継続率=e^(−日数/550)。界隈の平均寿命「2〜3年」を近似。●があなた。</div>`;
+    const step = maxN <= 900 ? 150 : 300;
+    for (let t = 0; t <= maxN; t += step) {
+      g += `<text x="${X(t).toFixed(1)}" y="${H - 16}" text-anchor="middle" class="sv-tick">${t}</text>`;
+    }
+    g += `<text x="${x1}" y="${H - 3}" text-anchor="end" class="sv-tick">日数</text>`;
+    let d = "";
+    for (let t = 0; t <= maxN; t += 5) d += (t ? "L" : "M") + X(t).toFixed(1) + " " + Y(P(t)).toFixed(1);
+    g += `<path d="${d}" class="sv-line"/>`;
+    g += `<line x1="${X(550).toFixed(1)}" x2="${X(550).toFixed(1)}" y1="${y0}" y2="${y1}" class="sv-med"/>`;
+    g += `<text x="${X(550).toFixed(1)}" y="${y0 + 8}" text-anchor="middle" class="sv-tick">期待活動寿命</text>`;
+    const pct = Math.round(P(n) * 100);
+    g += `<circle cx="${X(n).toFixed(1)}" cy="${Y(P(n)).toFixed(1)}" r="3.5" class="sv-you"/>`;
+    g += `<text x="${Math.min(X(n) + 7, x1 - 78).toFixed(1)}" y="${Math.max(Y(P(n)) - 7, y0 + 10).toFixed(1)}" class="sv-lbl">あなた ${pct}%</text>`;
+    $("survBox").innerHTML = `<svg viewBox="0 0 ${W} ${H}" class="surv" role="img" aria-label="同時期参入組の継続率曲線">${g}</svg>
+      <div class="dim small">同時期に参入した人が、いまも活動している割合のモデル（継続率 = e^(−日数/550)）。●があなた。550日 = 界隈の期待活動寿命（約1年半）。</div>`;
   }
   function toast(text, kind) {
     const box = $("toasts"); const el = document.createElement("div");
@@ -499,7 +529,9 @@ window.HK = window.HK || {};
   }
   function showMemorial() {
     const list = LS.get(MEM_KEY, []);
-    $("memList").innerHTML = list.length ? list.map((m, i) => `
+    $("memList").innerHTML = list.length ? list.map((m, i) => {
+      const msgs = (m.msgs || []).map(g => `<div class="memmsg"><span class="dim small">${esc(g.date)}</span> ${esc(g.text)}</div>`).join("");
+      return `
       <div class="memcard">
         <div class="memhead"><span class="rank r-${m.rank} small">${m.rank}</span><b>${esc(m.handle)}</b><span class="dim small">${esc(m.name)}</span></div>
         <div class="dim small">${m.era}年参入 ・ 界隈歴 ${fmt(m.days)}日 ・ ${esc(m.endingName)}</div>
@@ -510,13 +542,26 @@ window.HK = window.HK || {};
           <span><button class="candle" data-idx="${i}" data-act="again">もう一度見る</button>
           <button class="candle" data-idx="${i}" data-act="candle">🕯 ${m.candles || 0}</button></span>
         </div>
-      </div>`).join("") : `<div class="dim">まだ、ここに界隈歴はない。</div>`;
+        ${msgs ? `<div class="memmsgs">${msgs}</div>` : ""}
+        <div class="memform"><input class="meminp" data-idx="${i}" maxlength="80" placeholder="ひとことを残す（80字まで）"><button class="candle" data-idx="${i}" data-act="msg">残す</button></div>
+      </div>`;
+    }).join("") : `<div class="dim">まだ、ここに界隈歴はない。</div>`;
     document.querySelectorAll("[data-act]").forEach(b => {
       b.onclick = () => {
-        const list = LS.get(MEM_KEY, []);
-        const m = list[Number(b.dataset.idx)];
+        const list2 = LS.get(MEM_KEY, []);
+        const m = list2[Number(b.dataset.idx)];
         if (!m) return;
-        if (b.dataset.act === "candle") { m.candles = (m.candles || 0) + 1; LS.set(MEM_KEY, list); b.textContent = "🕯 " + m.candles; }
+        if (b.dataset.act === "candle") { m.candles = (m.candles || 0) + 1; LS.set(MEM_KEY, list2); b.textContent = "🕯 " + m.candles; }
+        else if (b.dataset.act === "msg") {
+          const inp = document.querySelector(`.meminp[data-idx="${b.dataset.idx}"]`);
+          const text = ((inp && inp.value) || "").trim();
+          if (!text) { if (inp) inp.focus(); return; }
+          m.msgs = m.msgs || [];
+          m.msgs.push({ date: new Date().toLocaleDateString("ja-JP"), text });
+          LS.set(MEM_KEY, list2);
+          showMemorial();
+          return;
+        }
         else { renderEndingRecord(m); }
       };
     });
@@ -626,10 +671,34 @@ window.HK = window.HK || {};
     $("btnDownload").addEventListener("click", () => {
       const a = document.createElement("a");
       const r = currentShownRecord || (S ? recordFromState(S) : null);
-      a.download = `4manbun_${r ? r.handle : "record"}_${r ? r.days : 0}day.png`;
+      a.download = `2manbun_${r ? r.handle : "record"}_${r ? r.days : 0}day.png`;
       a.href = $("cardCanvas").toDataURL("image/png");
       a.click();
     });
+    const copyText = r => `${r.handle}（${r.name}）\n${r.era}年参入 → ${r.endStr}・界隈歴 ${fmt(r.days)}日\n称号: ${r.title}（${r.rank}）／終わり方: ${r.endingName}\n最高フォロワー ${fmt(r.peak)}・希少度 約1/${fmt(1 / r.product)}\n#2万分の1のヒカマー https://hikamerlife.hikamers.app/`;
+    $("btnCopy").addEventListener("click", async () => {
+      const r = currentShownRecord || (S ? recordFromState(S) : null);
+      if (!r) return;
+      const t = copyText(r);
+      try {
+        await navigator.clipboard.writeText(t);
+        toast("記録をコピーした", "hk");
+      } catch (e) {
+        const ta = document.createElement("textarea");
+        ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); toast("記録をコピーした", "hk"); } catch (e2) { toast("コピーできなかった"); }
+        ta.remove();
+      }
+    });
+    if (navigator.share) {
+      $("btnShare").style.display = "";
+      $("btnShare").addEventListener("click", () => {
+        const r = currentShownRecord || (S ? recordFromState(S) : null);
+        if (!r) return;
+        navigator.share({ text: copyText(r) }).catch(() => { });
+      });
+    }
     $("btnMemorial").addEventListener("click", () => { if (S && !S.ended) return; saveMemorial(); showMemorial(); });
     $("btnAgain").addEventListener("click", () => { S = null; currentShownRecord = null; show("start"); });
     $("btnAgain2").addEventListener("click", () => { S = null; currentShownRecord = null; show("start"); });

@@ -8,6 +8,9 @@
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/v2.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🦪</text></svg>">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0e1420">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 </head>
 <body>
 
@@ -94,6 +97,10 @@
         <div id="statMoney"></div>
       </div>
       <div class="panel">
+        <h3>参入証</h3>
+        <div id="certBox"></div>
+      </div>
+      <div class="panel">
         <h3>ヒカマー</h3>
         <div id="hkPanel"><div class="dim small">読み込み中…</div></div>
       </div>
@@ -167,6 +174,8 @@
     <canvas id="cardCanvas" width="1080" height="1350"></canvas>
     <div class="deathbtns">
       <button class="btn sub" id="btnDownload">共有カードを保存</button>
+      <button class="btn sub" id="btnCopy">記録をコピー</button>
+      <button class="btn sub" id="btnShare" style="display:none">共有…</button>
       <button class="btn sub" id="btnMemorial">メモリアルに納める</button>
       <button class="btn" id="btnAgain">もう一度、参入する</button>
     </div>
@@ -207,10 +216,12 @@
   <b>全ヒカマー ≈ 3,000〜8,000人（代表値5,000）→ 1億人 ÷ 5,000 ≒ 2万分の1</b>。幅を取ると1.3万〜3万分の1。
   参考としてツイッタラ世論調査「ヒカマー」= 951票・総合2.97・肯定55.4%。</p>
 
-  <h2>あそびかた（v3）</h2>
+  <h2>あそびかた</h2>
   <p>ランダムな<b>時代・年齢・家・ネット環境・参入の経緯（新規／転生復活／他界隈からの合流）・きっかけ</b>をくじで引き、<b>#新参ヒカマー</b>として参入する。
   以後は<b>1日ずつ</b>進む。⏸一時停止・⏩スキップ・×1〜×8速度・重点12種・おまかせで放置も可。
-  終わりは死亡ではなく<b>引退（11種）</b>。記録は「リアル側／ネット側」に分けて残り、メモリアルから「もう一度見る」で開ける。</p>
+  終わりは死亡ではなく<b>引退（11種）</b>。記録は「リアル側／ネット側」に分けて残り、メモリアルから「もう一度見る」で開ける。「ろうそく」を灯し、「ひとこと」を残せる。
+  人生画面には<b>参入証</b>・<b>界隈地図（1マス = 1週間）</b>・<b>継続曲線（同時期参入組の生き残り）</b>が並ぶ。</p>
+  <p class="dim small">スマホでは共有メニューの「ホーム画面に追加」で、アプリのように全画面で開けます。</p>
 
   <h2>使っている実データ</h2>
   <ul id="aboutData"></ul>

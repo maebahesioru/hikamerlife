@@ -1,0 +1,16 @@
+{
+  "name": "2万分の1のヒカマー",
+  "short_name": "2万分の1",
+  "description": "時代・年齢・家・ネット環境・経緯をくじで引いてヒカマーとして参入し、1日ずつ界隈歴を生きて引退までを体験するシミュレーション。",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e1420",
+  "theme_color": "#0e1420",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

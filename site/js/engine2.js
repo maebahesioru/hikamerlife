@@ -1,5 +1,5 @@
 /* =========================================================
-   4万分の1のヒカマー v2 — エンジン（日単位・時代くじ・引退エンド）
+   2万分の1のヒカマー v3 — エンジン（日単位・時代くじ・引退エンド）
    ========================================================= */
 window.HK = window.HK || {};
 
@@ -66,6 +66,7 @@ window.HK = window.HK || {};
 
     const S = {
       seed, rng, sex, pref, family, net, sibling, qualities, name, handle, startAge,
+      pathId: path.id, triggerId: trigger.id,
       era, startDate, date: startDate, dayNum: 0, age: startAge, real,
       stats: { hp: rng.int(60, 85), happy: rng.int(55, 80), know: rng.int(35, 60), rel: rng.int(50, 75), mental: rng.int(55, 85) },
       hk: {

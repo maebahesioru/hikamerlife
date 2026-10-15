@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>4万分の1のヒカマー — Xのインターネットで、ひとつの人生を生きる</title>
-<meta name="description" content="日本の人口1億2000万人。Xで「_mania」と名乗るのは、およそ4万人にひとり。ヒカマーとしての一生を最後まで生きてみる、人生シミュレーション。">
+<title>4万分の1のヒカマー — 時代をくじで引いて、界隈歴を生きる</title>
+<meta name="description" content="活動中のヒカマーは推定1,300〜4,300人。日本のネット人口約1億人の約4万分の1。ランダムな時代と年齢でヒカマーとして参入し、1日ずつ界隈歴を生きて、引退までを体験するブラウザゲーム。">
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/v2.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🦪</text></svg>">
 </head>
 <body>
@@ -13,19 +14,20 @@
 <!-- ================= スタート ================= -->
 <section class="screen" id="screen-start">
   <div class="hero">
-    <h1>4万分の1のヒカマー<small>HIKAMER LIFE SIMULATION</small></h1>
+    <h1>4万分の1のヒカマー<small>HIKAMER CAREER SIMULATION</small></h1>
     <p class="lead">
-      日本の人口は、約1億2000万人。そのうちXで「_mania」と名乗って活動する人は、数百人から数千人と言われている。
-      ざっくり<b>4万人にひとり</b>。あなたはそのひとりとして、インターネットのある一生を過ごす。
+      日本のネット人口は約1億人。そのうちXで「_mania」と名乗って活動する人は、<b>推定1,300〜4,300人</b>——
+      ざっくり<b>4万人にひとり</b>。あなたはランダムな<b>時代（2019〜2026）</b>と<b>年齢（12〜18歳）</b>をくじで引き、
+      ヒカマーとして参入する。1日ずつ進む界隈歴は、いつか必ず終わる。終わり方は、死亡ではなく<b>引退</b>だ。
     </p>
     <div class="counter">
       <div class="c"><div class="n" id="liveBirths">0</div><div class="l">このページを開いてから日本で生まれた赤ちゃん（46秒にひとり・概算）</div></div>
       <div class="c"><div class="n" id="livePosts">0</div><div class="l">この間にXへ投稿されたポスト（世界・概算）</div></div>
     </div>
-    <p class="note">生まれる時代・場所・家・ネット環境は、くじで決まります。はじめての人生では選べません。<br>設定はそのままで、すぐに生まれてもかまいません。</p>
+    <p class="note">参入する時代・年齢・家・ネット環境は、くじで決まります。はじめての界隈歴では選べません。<br>設定はそのままで、すぐにくじを引いてもかまいません。</p>
 
     <div class="formbox">
-      <h3>出生届（任意）</h3>
+      <h3>参入届（任意）</h3>
       <div class="formrow"><label>名前</label><input id="inpName" maxlength="24" placeholder="空欄なら自動で決まります"></div>
       <div class="formrow"><label>ハンドルネーム</label><input id="inpHandle" maxlength="24" placeholder="空欄なら自動で決まります（例: 麦茶_mania）"></div>
       <div class="formrow"><label>性別</label>
@@ -35,34 +37,39 @@
           <option value="f">女性（とても珍しい）</option>
         </select>
       </div>
-      <div class="formrow"><label>生まれ年</label>
-        <select id="selBirthYear"><option value="random">くじで決める（2005〜2014年）</option></select>
+      <div class="formrow"><label>参入する時代</label>
+        <select id="selEra"><option value="random">くじで決める（2019〜2026）</option></select>
+      </div>
+      <div class="formrow"><label>参入時の年齢</label>
+        <select id="selAge"><option value="random">くじで決める（12〜18歳）</option></select>
       </div>
     </div>
 
-    <button class="btn" id="btnStart">生まれる</button>
+    <button class="btn" id="btnStart">くじを引いて参入する</button>
     <div class="footlinks">
-      <button class="btn sub" data-nav="about">このシミュレーションのしくみ・データ</button>
+      <button class="btn sub" data-nav="about">しくみ・人口検査・データ</button>
       <button class="btn sub" data-nav="zukan">ヒカマーズ図鑑</button>
       <button class="btn sub" data-nav="memorial">メモリアル</button>
     </div>
-    <p class="note">15歳以上の方を対象にしたシミュレーションです。子どもの死、いじめ、特定、凍結、病気、死などの重い場面も、
-      実際の界隈の統計・歴史に沿って出てきます。<br>登場する出来事は実在の界隈の文化・事件を参考にした<b>フィクション</b>です。実在の人物・団体の行動を保証・推奨するものではありません。</p>
+    <p class="note">15歳以上の方を対象にしたシミュレーションです。いじめ、特定、凍結、炎上、心の疲弊などの重い場面も、
+      界隈の実際の文化・事件に沿って出てきます。<b>死の描写はありません。終わりはすべて「引退」です。</b><br>
+      登場する出来事は実在の界隈の文化・事件を参考にした<b>フィクション</b>です。実在の人物・団体の行動を保証・推奨するものではありません。</p>
   </div>
 </section>
 
-<!-- ================= 人生 ================= -->
+<!-- ================= 界隈歴 ================= -->
 <section class="screen" id="screen-life">
   <div class="lifehead">
     <div>
       <div class="who" id="lifeHandle">_mania</div>
-      <div class="agey"><span id="lifeAge">0歳</span> ・ <span id="lifeYear">2008年</span> ・ <span id="lifeTitleSub"></span></div>
+      <div class="agey"><span id="lifeAge">13歳</span> ・ <span id="lifeYear">2024/05/16</span> ・ <span id="lifeDay">Day 1</span> ・ <span id="lifeTitleSub"></span></div>
     </div>
     <div class="spacer"></div>
     <button class="spd" data-s="1">×1</button>
     <button class="spd" data-s="2">×2</button>
     <button class="spd" data-s="4">×4</button>
     <button class="spd" data-s="8">×8</button>
+    <button class="tgl" id="btnSkip">⏩ 次の出来事まで</button>
     <button class="tgl" id="tglAuto">おまかせ: OFF</button>
     <button class="ghost" id="btnQuit">中断</button>
   </div>
@@ -76,18 +83,22 @@
       </div>
       <div class="panel">
         <h3>ヒカマー</h3>
-        <div id="hkPanel"><div class="dim small">まだネットの海の外にいる。</div></div>
+        <div id="hkPanel"><div class="dim small">読み込み中…</div></div>
       </div>
       <div class="panel">
-        <h3>同じ時代の仲間</h3>
+        <h3>当面の重点 <span class="dim small">（いつでも変えられる）</span></h3>
+        <div id="focusBox" class="focusbox"></div>
+      </div>
+      <div class="panel">
+        <h3>同時期の参入組</h3>
         <div id="compBox"></div>
       </div>
       <div class="panel">
-        <h3>人生地図</h3>
+        <h3>界隈地図 <span class="dim small">1マス=1週</span></h3>
         <div id="mapBox"></div>
       </div>
       <div class="panel">
-        <h3>アカウント生存曲線</h3>
+        <h3>継続曲線</h3>
         <div id="survBox"></div>
       </div>
       <div class="navrow">
@@ -98,39 +109,40 @@
     </div>
     <div>
       <div class="panel">
-        <h3>人生の記録 <span class="dim small">（新しい順ではなく、上から順に起きたこと）</span></h3>
+        <h3>界隈の記録 <span class="dim small">（上から順に起きたこと。★で残せる）</span></h3>
         <div id="logBox"></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ================= 死 ================= -->
-<section class="screen" id="screen-death">
+<!-- ================= エンディング ================= -->
+<section class="screen" id="screen-ending">
   <div class="deathwrap">
-    <div class="tag">— この人生は、ここで終わった —</div>
-    <div id="deathTitle">称号</div>
-    <div><span class="rank" id="deathRank">C</span></div>
-    <p id="deathDesc"></p>
-    <div class="dim" id="deathLife"></div>
-    <p class="dim" id="deathCause" style="margin-top:8px"></p>
+    <div class="tag">— この界隈歴は、ここで終わった —</div>
+    <div id="endTitle">称号</div>
+    <div><span class="rank" id="endRank">C</span></div>
+    <p id="endDesc"></p>
+    <div class="dim" id="endWho"></div>
+    <p class="dim" id="endTypeName" style="margin-top:8px"></p>
+    <p class="dim" id="endTypeDesc"></p>
   </div>
 
   <div class="deathgrid">
     <div class="panel">
-      <h3>生涯データ</h3>
-      <div id="deathStats"></div>
+      <h3>界隈歴データ</h3>
+      <div id="endStats"></div>
     </div>
     <div class="panel">
-      <h3>希少度（この人生がどれくらい「くじ」だったか）</h3>
-      <div id="deathChain"></div>
+      <h3>希少度（この界隈歴がどれくらい「くじ」だったか）</h3>
+      <div id="endChain"></div>
       <div class="dim small" style="margin-top:8px">確率はモデル計算です。「しくみ」に根拠をまとめています。</div>
     </div>
   </div>
 
   <div class="panel" style="margin-top:14px">
-    <h3>心に残る行</h3>
-    <div id="deathMoments"></div>
+    <h3>心に残る行 <span class="dim small">（★を付けた行・なければランダム）</span></h3>
+    <div id="endMoments"></div>
   </div>
 
   <div style="text-align:center">
@@ -138,7 +150,7 @@
     <div class="deathbtns">
       <button class="btn sub" id="btnDownload">共有カードを保存</button>
       <button class="btn sub" id="btnMemorial">メモリアルに納める</button>
-      <button class="btn" id="btnAgain">もう一度、生まれる</button>
+      <button class="btn" id="btnAgain">もう一度、参入する</button>
     </div>
   </div>
 </section>
@@ -146,18 +158,19 @@
 <!-- ================= メモリアル ================= -->
 <section class="screen" id="screen-memorial">
   <div class="hero" style="padding:30px 10px 10px"><h1 style="font-size:24px">メモリアル</h1>
-  <p class="lead">ここに納められた人生は、この端末の中だけに残ります。誰でも立ち寄って、ろうそくを灯せます。</p></div>
+  <p class="lead">ここに納められた界隈歴は、この端末の中だけに残ります。ろうそくを灯せます。「もう一度見る」で記録を開けます。</p></div>
   <div id="memList"></div>
   <div class="navrow" style="justify-content:center">
     <button class="btn sub" data-nav="start">もどる</button>
+    <button class="btn sub" id="btnAgain2">もう一度、参入する</button>
   </div>
 </section>
 
 <!-- ================= 図鑑 ================= -->
 <section class="screen" id="screen-zukan">
   <div class="hero" style="padding:30px 10px 10px"><h1 style="font-size:24px">ヒカマーズ図鑑</h1>
-  <p class="lead">人生の中で出会った語録・文化・事件が、ここに記録されていく。</p></div>
-  <div class="panel"><h3>語録・文化・場所・事件</h3><div id="zukanBody"></div></div>
+  <p class="lead">界隈歴の中で出会った語録・文化・事件・時代が、ここに記録されていく。</p></div>
+  <div class="panel"><h3>時代・語録・文化・場所・事件・人</h3><div id="zukanBody"></div></div>
   <div class="panel"><h3>称号コレクション</h3><div id="titlesBody" class="zgrid"></div></div>
   <div class="navrow" style="justify-content:center">
     <button class="btn sub" data-nav="start">もどる</button>
@@ -167,32 +180,40 @@
 
 <!-- ================= しくみ ================= -->
 <section class="screen about" id="screen-about">
-  <div class="hero" style="padding:30px 10px 0"><h1 style="font-size:24px">このシミュレーションのしくみ</h1></div>
+  <div class="hero" style="padding:30px 10px 0"><h1 style="font-size:24px">しくみ・人口検査・データ</h1></div>
 
-  <h2>「4万分の1」の根拠</h2>
-  <p>日本の人口 約1億2000万人 ÷ 界隈の活動人口「数百人〜数千人」（ヒカマーWiki Handbooksの記載）＝ ざっくり4万人にひとり。
-  これは概算です。<b>界隈の正確な人口は、誰も知りません</b>。それも含めてこの界隈です。</p>
+  <h2>「4万分の1」は本当か？（2026-10-15 精密検査）</h2>
+  <p>「_mania」を名乗る活動中アカウントを3つの独立サンプルで集め、<b>捕獲再捕獲法（Lincoln-Petersen）</b>で推定した。
+  重複から出た推定値は <b>約1,318人／約1,847人</b>（第三推定は4,321人・不安定）。文献値（Wiki Handbooks「数百〜数千人」）とも整合。
+  <b>結論: 活動中 ≈ 1,300〜4,300人、代表値2,500人。日本のネット人口 約1億人 ÷ 2,500 ≒ 4万分の1で、タイトルは維持。
+  ただし幅を取ると2万〜10万分の1。</b>「活動中」の定義・サフィックス限定・海外を含まない等の限界あり。</p>
+
+  <h2>あそびかた（v2）</h2>
+  <p>2019〜2026のどこかの時代と、12〜18歳のどこかの年齢をくじで引いて、<b>#新参ヒカマー</b>として参入する。以後は<b>1日ずつ</b>進む。
+  「次の出来事まで」で早送り、×1〜×8で速度変更、「おまかせ」で放置もできる。重点（馴れ合い／制作／制裁／ROM／現実優先）を切り替えると日々の伸び方が変わる。
+  終わりは死亡ではなく<b>引退</b>——自主引退・静かな消滅・卒業・界隈を去る・心が折れた、のいずれか。記録はメモリアルに残り、「もう一度見る」で開ける。</p>
 
   <h2>使っている実データ</h2>
   <ul id="aboutData"></ul>
 
   <h2>このゲームの割り切り</h2>
-  <p>人生のイベント・決断・死は、実際の統計と界隈の歴史を参考にしたモデルです。数字の一部（活動継続率・出会い確率など）は
-  「界隈の平均寿命2〜3年」等の実測感覚から作った近似で、実測値ではありません。確率は「そう思い込める」程度の精度で読んでください。</p>
+  <p>出会い確率・継続率（e^(−日数/550)）・日々の伸びなどの数字は、「界隈の平均寿命2〜3年」等の実測感覚と人口検査から作ったモデルで、実測値そのものではありません。
+  確率は「そう思い込める」程度の精度で読んでください。</p>
 
   <h2>登場するものについて</h2>
   <p>実在の界隈の文化（語録・制裁・アルカイダ・おもちゃ・地名・事件名など）を参考にしていますが、
-  このゲームの登場人物と人生は<b>フィクション</b>です。実在の人物に対する攻撃・特定・暴露を推奨する意図はありませんし、
+  このゲームの登場人物と出来事は<b>フィクション</b>です。実在の人物に対する攻撃・特定・暴露を推奨する意図はありませんし、
   ゲーム内のいかなる行動も現実で真似しないでください。</p>
 
   <div class="callout" id="helplineBox"></div>
 
   <h2>データ出典</h2>
   <ul>
-    <li>ヒカマーWiki（hikamers.net）— ヒカマー史／Handbooks／語録／構文／内戦一覧ほか</li>
+    <li>ヒカマーWiki（hikamers.net）— ヒカマー史／Handbooks／語録／構文／炎上一覧／内戦一覧ほか</li>
     <li>810ちゃんねる ヒカマー掲示板（810ch.yajuvideo.st）</li>
     <li>Hikabooru（hikabooru.hikamers.app）— 投稿数・タグ数</li>
     <li>ヒカマーズ8values（hikamer8values.hikamers.app）— 回答統計</li>
+    <li>人口検査の生データ: フォロワーネットワーク深掘り(409)・Yahoo!リアルタイム検索(29)・界隈横断コーパス(149)</li>
     <li>例のアレ検索・ニコニコ動画・X・Misskey・5ch・Yahoo知恵袋ほか界隈横断調査（2026年）</li>
   </ul>
 
@@ -212,9 +233,10 @@
 
 <div id="toasts"></div>
 
-<script src="js/data.js"></script>
-<script src="js/events.js"></script>
-<script src="js/engine.js"></script>
-<script src="js/ui.js"></script>
+<script src="js/data2.js"></script>
+<script src="js/events2.js"></script>
+<script src="js/extra2.js"></script>
+<script src="js/engine2.js"></script>
+<script src="js/ui2.js"></script>
 </body>
 </html>

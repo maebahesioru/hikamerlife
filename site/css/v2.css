@@ -1,0 +1,14 @@
+/* v2 additions */
+#lifeDay { color: var(--acc2); }
+.focusbox { display: flex; flex-wrap: wrap; gap: 6px; }
+.focuschip { background: var(--panel2); border: 1px solid var(--border); color: var(--dim); border-radius: 999px; padding: 4px 12px; font-size: 12.5px; cursor: pointer; }
+.focuschip.on { background: #3d2b12; border-color: #7a5a2a; color: var(--acc2); font-weight: 700; }
+.logline { position: relative; padding-left: 9px; }
+.logline .star { display: inline-block; width: 18px; cursor: pointer; color: #3a4a5c; margin-right: 4px; font-size: 11px; user-select: none; }
+.logline .star.on { color: var(--gold); }
+.logline.k-cal { color: #c3b3e6; }
+.logline.k-milestone { color: var(--acc2); font-weight: 700; }
+.logline.k-ending { color: #ffb0b0; background: #221a1f; }
+.logline.k-fade { color: var(--dim); }
+#endTypeName { color: var(--acc2); }
+.deathwrap #endTitle { font-size: 40px; margin: 10px 0 4px; }

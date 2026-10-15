@@ -150,7 +150,15 @@ window.HK = window.HK || {};
     $("certScreenNo").textContent = `No. ${S.era.year}-${String(S.seed % 1000000).padStart(6, "0")}`;
     $("certScreenHandle").textContent = S.handle;
     $("certScreenName").textContent = `（${S.name}）`;
-    const q = S.qualities;
+    const q0 = S.qualities || {};
+    const q = {
+      action: q0.action != null ? q0.action : (q0.grit != null ? q0.grit : 50),
+      intel: q0.intel != null ? q0.intel : (q0.draw != null ? q0.draw : 50),
+      influence: q0.influence != null ? q0.influence : (q0.social != null ? q0.social : 50),
+      stamina: q0.stamina != null ? q0.stamina : (q0.beat != null ? q0.beat : 50),
+      mental: q0.mental != null ? q0.mental : (q0.word != null ? q0.word : 50),
+      luck: q0.luck != null ? q0.luck : 50
+    };
     const dotRow = (label, v) => {
       const n = Math.max(0, Math.min(5, Math.round(v / 20)));
       let d = "";
@@ -164,8 +172,8 @@ window.HK = window.HK || {};
       `<div class="certrow"><span>出身</span><b>${esc(S.pref)}</b></div>` +
       `<div class="certrow"><span>家</span><b>${esc(S.family.label)}</b></div>` +
       `<div class="certrow"><span>ネット環境</span><b>${esc(S.net.label)}</b></div>` +
-      dotRow("画力", q.draw) + dotRow("音感", q.beat) + dotRow("文才", q.word) +
-      dotRow("社交", q.social) + dotRow("根性", q.grit) + dotRow("運", q.luck);
+      dotRow("行動力", q.action) + dotRow("知力", q.intel) + dotRow("影響力", q.influence) +
+      dotRow("持続力", q.stamina) + dotRow("メンタル", q.mental) + dotRow("運", q.luck);
     $("certScreenStory").textContent = S.log[0] ? S.log[0].text : "";
   }
 

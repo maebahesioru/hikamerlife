@@ -51,7 +51,7 @@ window.HK = window.HK || {};
     const family = rng.wpick(D().families, f => f.w);
     const net = rng.wpick(D().nets, n => n.w);
     const sibling = rng.pick(D().siblings);
-    const qualities = { draw: rng.int(5, 95), beat: rng.int(5, 95), word: rng.int(5, 95), social: rng.int(5, 95), grit: rng.int(5, 95), luck: rng.int(5, 95) };
+    const qualities = { action: rng.int(5, 95), intel: rng.int(5, 95), influence: rng.int(5, 95), stamina: rng.int(5, 95), mental: rng.int(5, 95), luck: rng.int(5, 95) };
     const given = sex === "m" ? rng.pick(D().givenNamesM) : rng.pick(D().givenNamesF);
     const name = opts.name || (rng.pick(D().familyNames) + " " + given);
     const handle = opts.handle || makeHandle(rng);
@@ -66,16 +66,16 @@ window.HK = window.HK || {};
       seed, rng, sex, pref, family, net, sibling, qualities, name, handle, startAge,
       pathId: path.id, triggerId: trigger.id,
       era, startDate, date: startDate, dayNum: 0, age: startAge, real,
-      stats: { hp: rng.int(60, 85), happy: rng.int(55, 80), know: rng.int(35, 60), rel: rng.int(50, 75), mental: rng.int(55, 85) },
+      stats: { hp: rng.int(60, 85), happy: rng.int(55, 80), know: clamp(rng.int(35, 60) + Math.round((qualities.intel - 50) / 10), 0, 100), rel: rng.int(50, 75), mental: clamp(rng.int(55, 85) + Math.round((qualities.mental - 50) / 10), 0, 100) },
       hk: {
-        followers: rng.int(1, 4) + (path.fx.followers || 0), peakFollowers: 0, goroku: rng.int(1, 5) + (path.fx.goroku || 0),
-        skill: Math.round((qualities.draw + qualities.beat + qualities.word) / 15) + (net.tech || 0),
+        followers: rng.int(1, 4) + (path.fx.followers || 0) + Math.max(0, Math.round((qualities.influence - 50) / 25)), peakFollowers: 0, goroku: rng.int(1, 5) + (path.fx.goroku || 0),
+        skill: Math.round((qualities.action + qualities.intel + qualities.stamina) / 15) + (net.tech || 0),
         fameRisk: family.monitor || 4, banRisk: 0, nareai: 0, edge: 0, dev: 0, freezes: 0,
         retireCount: (path.fx.retireCount || 0), doxxed: false
       },
       money: family.money0,
       focus: "none",
-      heat: 55,
+      heat: clamp(55 + Math.round((qualities.stamina - 50) / 10), 40, 70),
       faded: false,
       lowHeatDays: 0,
       flags: [],
@@ -156,7 +156,14 @@ window.HK = window.HK || {};
         for (let i = 0; i < len; i++) out += K[rng.int(0, K.length - 1)] + (i < len - 1 ? "." : ".");
         return out;
       }
-      default: return rng.pick([romaji + num(), romaji + "_" + rng.pick(D().romaji), noun + num(), cap(romaji)]);
+      default: {
+        let r2 = rng.pick(D().romaji);
+        if (r2 === romaji) {
+          const alt = D().romaji.filter(x => x !== romaji);
+          r2 = alt.length ? rng.pick(alt) : romaji;
+        }
+        return rng.pick([romaji + num(), romaji + "_" + r2, noun + num(), cap(romaji)]);
+      }
     }
   }
 

@@ -63,6 +63,14 @@
 .certcard .dots i.on { background: var(--acc); }
 .certstory { font-size: 13px; color: var(--text); margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
 #btnEnterLife { margin-top: 20px; }
+/* v3.12追加: 初投稿ツイートカード */
+.twcard { border: 1px solid var(--border); border-radius: 14px; padding: 14px; background: #10151d; }
+.twhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.twav { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #ff8a3d, #7ec8a9); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; color: #0e1420; flex: none; }
+.twid b { font-size: 14.5px; }
+.twid .dim { font-size: 13px; }
+.twtext { font-size: 14.5px; line-height: 1.7; overflow-wrap: anywhere; }
+.twmeta { margin-top: 8px; font-size: 12px; }
 /* v3.6追加: アルバム / フィルム */
 #albumOv { position: fixed; inset: 0; background: rgba(8,10,16,.93); z-index: 60; overflow: auto; padding: 18px; }
 #albumOv[hidden], #filmOv[hidden] { display: none !important; }

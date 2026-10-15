@@ -55,7 +55,7 @@ HK.EVENTS2 = [
   { id: "d_tl_kaigi", w: 8, d: [2, 2000], t: "タイムラインで朝会が始まっていた。あなたはひとつ語録を置いて、コーヒーを飲んだ。", fx: { happy: 1, nareai: 1 } },
   { id: "d_keyboard_war", w: 6, d: [5, 2000], t: "知らない者同士の言い争いが始まっていた。誰が正しいかは、もう誰も覚えていない。", fx: { know: 1, mental: -1, zukan: ["c17"] } },
   { id: "d_good_post", w: 6, d: [3, 2000], cond: S => S.hk.goroku >= 40, t: "あなたのポストに「うまい」のリプがついた。小さな、確かな手応え。", fx: { happy: 2, fame: 40 } },
-  { id: "d_quote_memo", w: 6, d: [2, 120], t: "新参の語録メモを投稿した。先輩から補足の引用RTが来た。それが授業だった。", fx: { goroku: 2, nareai: 1 } },
+  { id: "d_quote_memo", w: 6, d: [2, 120], once: true, t: "新参の語録メモを投稿した。先輩から補足の引用RTが来た。それが授業だった。", fx: { goroku: 2, nareai: 1 } },
   { id: "d_oldpost", w: 4, d: [30, 2000], t: "自分の昔のポストが引用されていた。三か月前の自分は、今の自分より元気だった。", fx: { happy: 1 } },
   { id: "d_kaigai", w: 3, d: [10, 2000], t: "海外のヒカマーから英語でリプが来た。「Hikamer?」とだけ書いてあった。", fx: { happy: 1, know: 1 } },
   { id: "d_goroku_miss", w: 5, d: [5, 300], cond: S => S.hk.goroku < 60, t: "語録の使い方を間違えた。先輩から「それ、こう使うゾ」と公開添削された。", fx: { goroku: 2, happy: -1 } },

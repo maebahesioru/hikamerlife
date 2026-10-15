@@ -174,7 +174,22 @@ window.HK = window.HK || {};
       `<div class="certrow"><span>ネット環境</span><b>${esc(S.net.label)}</b></div>` +
       dotRow("行動力", q.action) + dotRow("知力", q.intel) + dotRow("影響力", q.influence) +
       dotRow("持続力", q.stamina) + dotRow("メンタル", q.mental) + dotRow("運", q.luck);
-    $("certScreenStory").textContent = S.log[0] ? S.log[0].text : "";
+    // 初投稿ツイートカード（実ツイートの型: 「新参ヒカマーの◯◯ですｶﾄﾛ　よろ🈵」）
+    const twPool = (D().debutTweets && D().debutTweets[S.pathId]) || (D().debutTweets ? D().debutTweets.newbie : null);
+    if (twPool && twPool.length) {
+      const twText = S.rng.pick(twPool).replaceAll("{h}", S.handle).replaceAll("{n}", S.name);
+      const eyes = 3 + Math.floor(S.rng.range(0, 30));
+      $("certScreenStory").innerHTML = `
+        <div class="twcard">
+          <div class="twhead"><span class="twav">${esc((S.handle || "?").slice(0, 1))}</span>
+            <span class="twid"><b>${esc(S.name)}</b><span class="dim"> @${esc(S.handle)}</span></span></div>
+          <div class="twtext">${esc(twText)}</div>
+          <div class="twmeta dim small">${HK.engine2.fmtDate(S.startDate)} ・ 表示 ${eyes} 回</div>
+        </div>
+        <div class="dim small" style="margin-top:6px">これが、あなたの界隈での初投稿になった。</div>`;
+    } else {
+      $("certScreenStory").textContent = S.log[0] ? S.log[0].text : "";
+    }
   }
 
   /* ---------- 途中保存 / つづきから ---------- */

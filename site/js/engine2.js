@@ -88,6 +88,7 @@ window.HK = window.HK || {};
       encounterP: clamp(0.25 + ((net.tier != null ? net.tier : 1) - 1) * 0.08 + (qualities.luck - 50) / 400, 0.1, 0.55),
       companions: [],
       _once: {},
+      _lastEv: {},
       _calDone: {},
       _decDay: -99,
       _milestones: {},
@@ -296,6 +297,7 @@ window.HK = window.HK || {};
   const arrOf = v => Array.isArray(v) ? v : (v == null ? null : [v]);
   function eligible(S, ev) {
     if (ev.once && S._once[ev.id]) return false;
+    if (S._lastEv && S.dayNum - (S._lastEv[ev.id] || -9999) < (ev.cool || 14)) return false;
     const [a, b] = ev.d || [0, 99999];
     if (S.dayNum < a || S.dayNum > b) return false;
     if (ev.era && (S.era.year < ev.era[0] || S.era.year > ev.era[1])) return false;
@@ -325,6 +327,7 @@ window.HK = window.HK || {};
       const pool = HK.EVENTS2.filter(e => eligible(S, e));
       if (!pool.length) break;
       const ev = S.rng.wpick(pool, e => e.w || 1);
+      S._lastEv[ev.id] = S.dayNum;
       if (ev.once) S._once[ev.id] = true;
       out.push(ev);
     }
@@ -336,6 +339,7 @@ window.HK = window.HK || {};
     if (!pool.length) return null;
     if (S.rng.chance(0.05)) {
       const dec = S.rng.wpick(pool, d => d.w || 1);
+      S._lastEv[dec.id] = S.dayNum;
       if (dec.once) S._once[dec.id] = true;
       S._decDay = S.dayNum;
       return dec;

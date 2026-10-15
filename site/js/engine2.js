@@ -91,7 +91,8 @@ window.HK = window.HK || {};
       _calDone: {},
       _decDay: -99,
       _milestones: {},
-      _zukan: {}
+      _zukan: {},
+      _bought: {}
     };
     // 参入の経緯・きっかけの残りを適用
     if (path.fx.heat) S.heat = clamp(S.heat + path.fx.heat, 0, 100);
@@ -530,5 +531,5 @@ window.HK = window.HK || {};
     S.pending = null;
   }
 
-  HK.engine2 = { newGame, step, resolve, renderText, unlockZukan, fmtDate, endGame, makeHandle, RNG, clamp };
+  HK.engine2 = { newGame, step, resolve, renderText, unlockZukan, fmtDate, endGame, makeHandle, RNG, clamp, applyFx, pushLog };
 })();

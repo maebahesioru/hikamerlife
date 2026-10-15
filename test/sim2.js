@@ -7,6 +7,7 @@ require("../site/js/events2.js");
 require("../site/js/extra2.js");
 require("../site/js/extra3.js");
 require("../site/js/extra4.js");
+require("../site/js/extra5.js");
 require("../site/js/engine2.js");
 
 const N = parseInt(process.argv[2] || "300", 10);

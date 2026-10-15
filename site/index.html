@@ -258,6 +258,7 @@
   <p class="dim small">スマホでは共有メニューの「ホーム画面に追加」で、アプリのように全画面で開けます。</p>
   <p class="dim small">エンディングで「みんなのメモリアルに残す」を押すと、公開メモリアルに記録が並び、だれでもろうそくを灯し、ひとことを残せます（公開されるのはハンドル・称号・日数・時代・終わり方などのゲーム内情報だけです）。</p>
   <p class="dim small">「界隈研究室」では、条件（時代/経緯/年齢）を決めて人生をまとめて走らせ、終わり方や称号の分布を並べて見られます。ここで走った人生は記録に残りません。</p>
+  <p class="dim small">稼いだお金は人生画面の「🛒 道具屋」で機材や息抜きに使えます（買うほど、部屋の機材も育ちます）。</p>
 
   <h2>使っている実データ</h2>
   <ul id="aboutData"></ul>
@@ -297,6 +298,19 @@
 
 <div id="toasts"></div>
 
+<!-- ================= 道具屋 ================= -->
+<div id="shopOv" hidden>
+  <div class="shopcard">
+    <div class="albumhead" style="margin-bottom:10px">
+      <b>道具屋</b><span class="dim small" id="shopMoney"></span>
+      <span style="flex:1"></span>
+      <button class="candle" id="shopClose">閉じる</button>
+    </div>
+    <div id="shopList"></div>
+    <p class="dim small" style="margin-top:10px">機材は一度きり、息抜きと宣伝は何度でも。お金はイベントで増える（バイト・初任給・収益化など）。</p>
+  </div>
+</div>
+
 <!-- ================= アルバム ================= -->
 <div id="albumOv" hidden>
   <div class="albumhead">
@@ -323,6 +337,7 @@
 <script src="js/extra2.js"></script>
 <script src="js/extra3.js"></script>
 <script src="js/extra4.js"></script>
+<script src="js/extra5.js"></script>
 <script src="js/engine2.js"></script>
 <script src="js/ui2.js"></script>
 <!-- ================= 界隈研究室 ================= -->

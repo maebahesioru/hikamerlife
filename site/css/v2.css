@@ -105,3 +105,13 @@
   .albumhead { flex-wrap: wrap; }
   .labrow label { min-width: 64px; }
 }
+/* v3.9追加: 道具屋 */
+#shopOv { position: fixed; inset: 0; background: rgba(8,10,16,.93); z-index: 65; overflow: auto; padding: 18px; }
+#shopOv[hidden] { display: none !important; }
+.shopcard { max-width: 560px; margin: 40px auto; background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+.shoprow { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px dashed var(--border); }
+.shoprow:last-child { border-bottom: 0; }
+.shopleft { flex: 1; }
+.shopleft b { display: block; font-size: 14px; }
+.shopbuy { min-width: 90px; }
+.logline.k-shop { color: #e8c15a; }

@@ -495,7 +495,8 @@ window.HK = window.HK || {};
   function renderStats() {
     const s = S.stats;
     $("statList").innerHTML = bar("hp", "体調", s.hp) + bar("happy", "幸福", s.happy) + bar("know", "学業/仕事", s.know) + bar("rel", "人間関係", s.rel) + bar("mental", "メンタル", s.mental, "m");
-    $("statMoney").textContent = "¥" + fmt(S.money);
+    $("statMoney").innerHTML = `¥${fmt(S.money)} <button class="candle" id="btnShop">🛒 道具屋</button>`;
+    $("btnShop").onclick = openShop;
   }
   function renderHk() {
     const hk = S.hk;
@@ -1050,6 +1051,37 @@ window.HK = window.HK || {};
       <div class="dim small" style="margin-top:8px">決定の場面は自動で選ばれる（おまかせと同じ: 7割は前向き・3割は慎重）。ここで走った人生は記録に残らない。</div>`;
   }
 
+  /* ---------- 道具屋 ---------- */
+  function openShop() {
+    renderShop();
+    $("shopOv").hidden = false;
+  }
+  function renderShop() {
+    $("shopMoney").textContent = `所持金 ¥${fmt(S ? S.money : 0)}`;
+    $("shopList").innerHTML = D().shopItems.map(it => {
+      const bought = S._bought && S._bought[it.id];
+      const affirm = S.money >= it.price;
+      const dis = (it.once && bought) || !affirm;
+      return `<div class="shoprow"><div class="shopleft"><b>${it.label}</b><span class="dim small">${it.desc}</span></div>
+        <button class="candle shopbuy" data-buy="${it.id}" ${dis ? "disabled" : ""}>${it.once && bought ? "購入済み" : "¥" + fmt(it.price)}</button></div>`;
+    }).join("");
+    $("shopList").querySelectorAll("[data-buy]").forEach(b => b.onclick = () => buyItem(b.dataset.buy));
+  }
+  function buyItem(id) {
+    const it = D().shopItems.find(x => x.id === id);
+    if (!it || !S || S.ended) return;
+    if (it.once && S._bought && S._bought[it.id]) return;
+    if (S.money < it.price) { toast("お金が足りない"); return; }
+    S.money -= it.price;
+    S._bought = S._bought || {};
+    if (it.once) S._bought[it.id] = true;
+    HK.engine2.applyFx(S, it.fx);
+    HK.engine2.pushLog(S, "shop", `「${it.label}」を買った。${it.desc}`);
+    renderShop();
+    renderAll();
+    toast(`買った: ${it.label}`, "hk");
+  }
+
   function renderEndingRecord(m) {
     currentShownRecord = m;
     displayEnding(m);
@@ -1192,6 +1224,7 @@ window.HK = window.HK || {};
     $("filmPrev").addEventListener("click", () => { if (!albumRec) return; filmIdx = (filmIdx - 1 + albumRec.lines.length) % albumRec.lines.length; renderFilm(); });
     $("btnPublish").addEventListener("click", publishRecord);
     $("btnLabRun").addEventListener("click", startLab);
+    $("shopClose").addEventListener("click", () => { $("shopOv").hidden = true; });
     $("btnAgain").addEventListener("click", () => { S = null; currentShownRecord = null; show("start"); });
     $("btnAgain2").addEventListener("click", () => { S = null; currentShownRecord = null; show("start"); });
   }

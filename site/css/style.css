@@ -35,7 +35,7 @@ button { font-family: inherit; cursor: pointer; }
 .formbox h3 { font-size: 13px; color: var(--dim); letter-spacing: .18em; margin-bottom: 12px; }
 .formrow { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; flex-wrap: wrap; }
 .formrow label { font-size: 13px; color: var(--dim); min-width: 90px; }
-.formrow input, .formrow select { flex: 1; background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 14px; }
+.formrow input, .formrow select { flex: 1; min-width: 0; max-width: 100%; background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 14px; }
 .btn { display: inline-block; background: linear-gradient(180deg, #ff9950, #e0732a); color: #1a0e04; border: 0; border-radius: 10px; font-weight: 800; font-size: 17px; padding: 14px 46px; letter-spacing: .1em; box-shadow: 0 8px 24px rgba(255, 138, 61, .25); }
 .btn:hover { filter: brightness(1.08); }
 .btn.sub { background: var(--panel2); color: var(--text); border: 1px solid var(--border); font-size: 14px; padding: 10px 22px; box-shadow: none; font-weight: 600; }

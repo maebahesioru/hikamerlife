@@ -19,6 +19,8 @@ window.HK = window.HK || {};
   const TIT_KEY = "hk4m2.titles";
   const OPT_KEY = "hk4m2.opts";
   const SAVE_KEY = "hk4m2.save";
+  const MEM_API = (location.hostname === "127.0.0.1" || location.hostname === "localhost") ? "https://hikamerlife.hikamers.app/api" : "/api";
+  let memTab = "local";
 
   let S = null;
   let timer = null;
@@ -551,6 +553,8 @@ window.HK = window.HK || {};
   function showEnding() {
     if (!S || !S.title) return;
     LS.remove(SAVE_KEY);
+    const pb = $("btnPublish");
+    if (pb) { pb.disabled = false; pb.textContent = "みんなのメモリアルに残す"; }
     const r = recordFromState(S);
     currentShownRecord = r;
     displayEnding(r);
@@ -734,7 +738,16 @@ window.HK = window.HK || {};
   }
   function showMemorial() {
     const list = LS.get(MEM_KEY, []);
-    $("memList").innerHTML = list.length ? list.map((m, i) => {
+    const tabs = `<div class="memtabs"><button class="chip ${memTab === "local" ? "on" : ""}" data-mtab="local">あなたの記録</button><button class="chip ${memTab === "public" ? "on" : ""}" data-mtab="public">みんなのメモリアル</button></div>`;
+    if (memTab === "public") {
+      $("memList").innerHTML = tabs + `<div id="memPub" class="dim small">読み込み中…</div>`;
+      $("memList").querySelectorAll("[data-mtab]").forEach(b => b.onclick = () => { memTab = b.dataset.mtab; showMemorial(); });
+      renderPublicMemorial();
+      show("memorial");
+      return;
+    }
+    const sum = list.length ? `<div class="memsum">これまで: ${list.length}件 ・ 最長 ${fmt(Math.max(...list.map(m => m.days || 0)))}日 ・ 最高フォロワー ${fmt(Math.max(...list.map(m => m.peak || 0)))}</div>` : "";
+    $("memList").innerHTML = tabs + sum + (list.length ? list.map((m, i) => {
       const msgs = (m.msgs || []).map(g => `<div class="memmsg"><span class="dim small">${esc(g.date)}</span> ${esc(g.text)}</div>`).join("");
       return `
       <div class="memcard">
@@ -750,7 +763,8 @@ window.HK = window.HK || {};
         ${msgs ? `<div class="memmsgs">${msgs}</div>` : ""}
         <div class="memform"><input class="meminp" data-idx="${i}" maxlength="80" placeholder="ひとことを残す（80字まで）"><button class="candle" data-idx="${i}" data-act="msg">残す</button></div>
       </div>`;
-    }).join("") : `<div class="dim">まだ、ここに界隈歴はない。</div>`;
+    }).join("") : `<div class="dim">まだ、ここに界隈歴はない。</div>`);
+    $("memList").querySelectorAll("[data-mtab]").forEach(b => b.onclick = () => { memTab = b.dataset.mtab; showMemorial(); });
     document.querySelectorAll("[data-act]").forEach(b => {
       b.onclick = () => {
         const list2 = LS.get(MEM_KEY, []);
@@ -771,6 +785,58 @@ window.HK = window.HK || {};
       };
     });
     show("memorial");
+  }
+  /* ---------- みんなのメモリアル（公開・サーバー） ---------- */
+  async function renderPublicMemorial() {
+    const box = $("memPub");
+    if (!box) return;
+    try {
+      const res = await fetch(MEM_API + "/mems");
+      const data = await res.json();
+      if (!data.list || !data.list.length) {
+        box.innerHTML = `<div class="dim">まだ公開された界隈歴はない。エンディングで「みんなのメモリアルに残す」を押すと、ここに並ぶ。</div>`;
+        return;
+      }
+      box.classList.remove("small", "dim");
+      box.innerHTML = data.list.map(m => `
+        <div class="memcard">
+          <div class="memhead"><span class="rank r-${esc(m.r)} small">${esc(m.r)}</span><b>@${esc(m.h)}</b><span class="dim small">${esc(m.n)}</span></div>
+          <div class="dim small">${m.e}年参入 ・ 界隈歴 ${fmt(m.d)}日 ・ ${esc(m.g)}</div>
+          <div class="memtitle">${esc(m.t)}</div>
+          ${m.ds ? `<div class="dim small">${esc(m.ds)}</div>` : ""}
+          <div class="membottom"><span class="dim small">${new Date(m.at).toLocaleDateString("ja-JP")}</span>
+          <button class="candle" data-pub="${esc(m.id)}">🕯 ${m.c || 0}</button></div>
+        </div>`).join("");
+      box.querySelectorAll("[data-pub]").forEach(b => {
+        b.onclick = async () => {
+          b.disabled = true;
+          try {
+            const r2 = await fetch(MEM_API + "/candle", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: b.dataset.pub }) });
+            const d2 = await r2.json();
+            if (d2.ok) { b.textContent = "🕯 " + d2.c; toast("ろうそくを灯した", "hk"); }
+            else { b.disabled = false; toast("灯せなかった"); }
+          } catch (e) { b.disabled = false; toast("通信に失敗した"); }
+        };
+      });
+    } catch (e) {
+      box.innerHTML = `<div class="dim">読み込めなかった（通信エラー）。もう一度開いてみて。</div>`;
+    }
+  }
+  async function publishRecord() {
+    const r = currentShownRecord || (S ? recordFromState(S) : null);
+    if (!r) return;
+    if (!confirm("この界隈歴を公開メモリアルに残す？（@ハンドル・称号・日数などが誰でも見られる）")) return;
+    const b = $("btnPublish");
+    b.disabled = true;
+    try {
+      const res = await fetch(MEM_API + "/mem", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ handle: r.handle, name: r.name, era: r.era, days: r.days, title: r.title, rank: r.rank, ending: r.endingName, desc: r.desc })
+      });
+      const data = await res.json();
+      if (data.ok) { b.textContent = "公開した 🕯"; toast("みんなのメモリアルに残した（反映に少し時間がかかることがある）", "hk"); }
+      else { b.disabled = false; toast("残せなかった"); }
+    } catch (e) { b.disabled = false; toast("通信に失敗した"); }
   }
   function renderEndingRecord(m) {
     currentShownRecord = m;
@@ -905,6 +971,7 @@ window.HK = window.HK || {};
       });
     }
     $("btnMemorial").addEventListener("click", () => { if (S && !S.ended) return; saveMemorial(); showMemorial(); });
+    $("btnPublish").addEventListener("click", publishRecord);
     $("btnAgain").addEventListener("click", () => { S = null; currentShownRecord = null; show("start"); });
     $("btnAgain2").addEventListener("click", () => { S = null; currentShownRecord = null; show("start"); });
   }

@@ -38,3 +38,8 @@
 /* v3.2追加: 部屋シーン / つづきから */
 #sceneCv { width: 100%; height: auto; display: block; border-radius: 10px; }
 #btnResume { margin-top: 10px; }
+/* v3.3追加: みんなのメモリアル */
+.memtabs { display: flex; gap: 8px; margin-bottom: 12px; }
+.memtabs .chip { background: var(--panel2); border: 1px solid var(--border); color: var(--dim); border-radius: 999px; padding: 5px 16px; font-size: 13px; cursor: pointer; }
+.memtabs .chip.on { background: #3d2b12; border-color: #7a5a2a; color: var(--acc2); font-weight: 700; }
+.memsum { margin-bottom: 10px; color: var(--dim); font-size: 13px; }

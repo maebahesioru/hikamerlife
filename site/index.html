@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>4万分の1のヒカマー — 時代をくじで引いて、界隈歴を生きる</title>
-<meta name="description" content="活動中のヒカマーは推定1,300〜4,300人。日本のネット人口約1億人の約4万分の1。ランダムな時代と年齢でヒカマーとして参入し、1日ずつ界隈歴を生きて、引退までを体験するブラウザゲーム。">
+<title>2万分の1のヒカマー — 時代をくじで引いて、界隈歴を生きる</title>
+<meta name="description" content="ヒカマーの名乗りを実測調査——活動中のヒカマーは約3,000〜8,000人、日本のネット人口の約2万分の1。ランダムな時代・年齢・経緯・環境でヒカマーとして参入し、1日ずつ界隈歴を生きて、引退までを体験するブラウザゲーム。">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/v2.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🦪</text></svg>">
@@ -14,10 +14,11 @@
 <!-- ================= スタート ================= -->
 <section class="screen" id="screen-start">
   <div class="hero">
-    <h1>4万分の1のヒカマー<small>HIKAMER CAREER SIMULATION</small></h1>
+    <h1>2万分の1のヒカマー<small>HIKAMER CAREER SIMULATION</small></h1>
     <p class="lead">
-      日本のネット人口は約1億人。そのうちXで「_mania」と名乗って活動する人は、<b>推定1,300〜4,300人</b>——
-      ざっくり<b>4万人にひとり</b>。あなたはランダムな<b>時代（2019〜2026）</b>と<b>年齢（12〜18歳）</b>をくじで引き、
+      ヒカマーは「_mania」と名乗る人だけじゃない。<b>マニ・キン・KinTV・マニア・bot・無印名義——</b>名乗りを実測調査すると、
+      マーカー付きは約4分の1にすぎなかった。そこから割り戻すと、活動中のヒカマーは<b>約3,000〜8,000人</b>。
+      日本のネット人口1億人の<b>およそ2万分の1</b>。あなたはランダムな<b>時代（2019〜2026）・年齢・経緯</b>をくじで引き、
       ヒカマーとして参入する。1日ずつ進む界隈歴は、いつか必ず終わる。終わり方は、死亡ではなく<b>引退</b>だ。
     </p>
     <div class="counter">
@@ -46,6 +47,12 @@
       <div class="formrow"><label>あなた自身（任意）</label>
         <select id="selRealEra" style="max-width:150px"><option value="none">実際の参入年: 不明</option></select>
         <select id="selRealAge" style="max-width:150px"><option value="none">当時の年齢: 不明</option></select>
+      </div>
+      <div class="formrow"><label>参入の経緯</label>
+        <select id="selPath"><option value="random">くじで決める（新規60%・転生20%・他界隈から20%）</option></select>
+      </div>
+      <div class="formrow"><label>参入のきっかけ</label>
+        <select id="selTrigger"><option value="random">くじで決める（6種から）</option></select>
       </div>
     </div>
 
@@ -193,16 +200,17 @@
 <section class="screen about" id="screen-about">
   <div class="hero" style="padding:30px 10px 0"><h1 style="font-size:24px">しくみ・人口検査・データ</h1></div>
 
-  <h2>「4万分の1」は本当か？（2026-10-15 精密検査）</h2>
-  <p>「_mania」を名乗る活動中アカウントを3つの独立サンプルで集め、<b>捕獲再捕獲法（Lincoln-Petersen）</b>で推定した。
-  重複から出た推定値は <b>約1,318人／約1,847人</b>（第三推定は4,321人・不安定）。文献値（Wiki Handbooks「数百〜数千人」）とも整合。
-  <b>結論: 活動中 ≈ 1,300〜4,300人、代表値2,500人。日本のネット人口 約1億人 ÷ 2,500 ≒ 4万分の1で、タイトルは維持。
-  ただし幅を取ると2万〜10万分の1。</b>「活動中」の定義・サフィックス限定・海外を含まない等の限界あり。</p>
+  <h2>「2万分の1」の根拠（名乗り調査つき）</h2>
+  <p>以前の「4万分の1」は<b>「_mania」限定</b>の推定だった。だがヒカマーの名乗りは
+  <b>マニ・キン・KinTV・マニア・bot・無印名義</b>まで幅広い。界隈ネットワークの実測ハンドル1,152件では、マーカー付きは<b>23.8%</b>のみ。
+  Wiki名簿1,266件（実測）ではマーカー風が約46%。マーカー限定の捕獲再捕獲（≈1,300〜4,300）を比率で割り戻すと、
+  <b>全ヒカマー ≈ 3,000〜8,000人（代表値5,000）→ 1億人 ÷ 5,000 ≒ 2万分の1</b>。幅を取ると1.3万〜3万分の1。
+  参考としてツイッタラ世論調査「ヒカマー」= 951票・総合2.97・肯定55.4%（ユーザー提供値）。</p>
 
-  <h2>あそびかた（v2）</h2>
-  <p>2019〜2026のどこかの時代と、12〜18歳のどこかの年齢をくじで引いて、<b>#新参ヒカマー</b>として参入する。以後は<b>1日ずつ</b>進む。
-  「次の出来事まで」で早送り、×1〜×8で速度変更、「おまかせ」で放置もできる。重点（馴れ合い／制作／制裁／ROM／現実優先）を切り替えると日々の伸び方が変わる。
-  終わりは死亡ではなく<b>引退</b>——自主引退・静かな消滅・卒業・界隈を去る・心が折れた、のいずれか。記録はメモリアルに残り、「もう一度見る」で開ける。</p>
+  <h2>あそびかた（v3）</h2>
+  <p>ランダムな<b>時代・年齢・家・ネット環境・参入の経緯（新規／転生復活／他界隈からの合流）・きっかけ</b>をくじで引き、<b>#新参ヒカマー</b>として参入する。
+  以後は<b>1日ずつ</b>進む。⏸一時停止・⏩スキップ・×1〜×8速度・重点12種・おまかせで放置も可。
+  終わりは死亡ではなく<b>引退（11種）</b>。記録は「リアル側／ネット側」に分けて残り、メモリアルから「もう一度見る」で開ける。</p>
 
   <h2>使っている実データ</h2>
   <ul id="aboutData"></ul>
@@ -215,8 +223,6 @@
   <p>実在の界隈の文化（語録・制裁・アルカイダ・おもちゃ・地名・事件名など）を参考にしていますが、
   このゲームの登場人物と出来事は<b>フィクション</b>です。実在の人物に対する攻撃・特定・暴露を推奨する意図はありませんし、
   ゲーム内のいかなる行動も現実で真似しないでください。</p>
-
-  <div class="callout" id="helplineBox"></div>
 
   <h2>データ出典</h2>
   <ul>
@@ -248,6 +254,7 @@
 <script src="js/events2.js"></script>
 <script src="js/extra2.js"></script>
 <script src="js/extra3.js"></script>
+<script src="js/extra4.js"></script>
 <script src="js/engine2.js"></script>
 <script src="js/ui2.js"></script>
 </body>

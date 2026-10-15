@@ -71,6 +71,18 @@ window.HK = window.HK || {};
       o.value = a; o.textContent = a + "歳";
       realAgeSel.appendChild(o);
     }
+    const pathSel = $("selPath");
+    D().paths.forEach(p => {
+      const o = document.createElement("option");
+      o.value = p.id; o.textContent = `${p.label}（${p.desc.slice(0, 24)}…）`;
+      pathSel.appendChild(o);
+    });
+    const triggerSel = $("selTrigger");
+    D().triggers.forEach(t => {
+      const o = document.createElement("option");
+      o.value = t.id; o.textContent = t.label;
+      triggerSel.appendChild(o);
+    });
     $("btnStart").addEventListener("click", () => {
       const clean = s => (s || "").replace(/[<>&"'`]/g, "").slice(0, 24);
       const opts = {};
@@ -81,6 +93,8 @@ window.HK = window.HK || {};
       if (ageSel.value !== "random") opts.age = parseInt(ageSel.value, 10);
       if (realEraSel.value !== "none") opts.realEra = parseInt(realEraSel.value, 10);
       if (realAgeSel.value !== "none") opts.realAge = parseInt(realAgeSel.value, 10);
+      if (pathSel.value !== "random") opts.path = pathSel.value;
+      if (triggerSel.value !== "random") opts.trigger = triggerSel.value;
       startGame(opts);
     });
   }
@@ -415,7 +429,7 @@ window.HK = window.HK || {};
     ctx.fillStyle = "#0b0f14"; ctx.fillRect(0, 0, W, H);
     ctx.strokeStyle = "#233040"; ctx.lineWidth = 3; ctx.strokeRect(40, 40, W - 80, H - 80);
     ctx.fillStyle = "#ff8a3d"; ctx.font = "700 40px 'Noto Sans JP', sans-serif";
-    ctx.fillText("4万分の1のヒカマー", 90, 145);
+    ctx.fillText("2万分の1のヒカマー", 90, 145);
     ctx.fillStyle = "#7d8ea3"; ctx.font = "24px 'Noto Sans JP', sans-serif";
     ctx.fillText(`— ${r.era}年参入（${r.eraName}）・界隈歴 ${fmt(r.days)}日 —`, 90, 188);
     ctx.fillStyle = "#e8eef5"; ctx.font = "700 60px 'Noto Sans JP', sans-serif";
@@ -456,7 +470,7 @@ window.HK = window.HK || {};
     ctx.fillText(`約 1 / ${fmt(1 / r.product)}`, 90, y);
     ctx.fillStyle = "#54657a"; ctx.font = "20px 'Noto Sans JP', sans-serif";
     ctx.fillText("出典: ヒカマーWiki・Hikabooru・810ch・ヒカマーズ8values ほか（詳細はサイトの「しくみ」へ）", 90, H - 105);
-    ctx.fillText("人口検査(2026-10): 活動中ヒカマー ≈ 1,300〜4,300人 ／ この記録はフィクションです。", 90, H - 70);
+    ctx.fillText("人口検査(2026-10): 名乗り調査より全ヒカマー ≈ 3,000〜8,000人 → 約2万分の1。この記録はフィクションです。", 90, H - 70);
   }
   function wrapText(ctx, text, x, y, maxW, lineH, maxLines) {
     const chars = text.split(""); let line = "", lines = [];
@@ -624,13 +638,13 @@ window.HK = window.HK || {};
   /* ---------- しくみ ---------- */
   function fillAbout() {
     const m = D().meta;
-    $("helplineBox").innerHTML = `<b>つらいとき</b><br>${esc(D().helpline)}<br><span class="dim small">このゲームの出来事はフィクションですが、現実のつらさは本物です。</span>`;
     $("aboutData").innerHTML = `
-      <li>人口検査(2026-10-15): 3つの独立サンプルの捕獲再捕獲で、活動中のヒカマー ≈ <b>1,300〜4,300人</b>（重複から Lincoln-Petersen 推定 1,318／1,847）。代表値2,500人</li>
-      <li>日本のネット人口 約1億人 ÷ 2,500人 ≒ <b>4万分の1</b>（幅を取ると2万〜10万分の1）</li>
-      <li>Wiki Handbooksの記載「数百〜数千人」とも整合。名簿1,234件は累計ベース</li>
-      <li>ヒカマーWiki: 記事${m.wikiArticles}・利用者187（2026-08実測）／Hikabooru: 投稿${fmt(m.booruPosts)}・タグ${fmt(m.booruTags)}</li>
-      <li>ニコニコ「Hikakin_mania」タグ ${fmt(m.nicoHikamani)}本／8values回答 ${m.f8values}件／界隈横断コーパス ${fmt(m.yajuDocs)}文書</li>
+      <li>名乗り調査(2026-10-15): 界隈ネットワークの実測ハンドル1,152件のうち、<b>_mania等のマーカー付きは23.8%</b>（残り76.2%は無印名義）。ヒカマーの名乗りは「_mania」だけではない</li>
+      <li>Wiki「ヒカマー一覧」を実測: <b>1,266件</b>（うちマーカー風 約46%・bot系49件）</li>
+      <li>マーカー限定の捕獲再捕獲 ≈ 1,300〜4,300 → マーカー比率で割り戻した全ヒカマー ≈ <b>3,000〜8,000人（代表値5,000）</b></li>
+      <li>日本のネット人口 約1億人 ÷ 5,000 ≒ <b>2万分の1</b>（幅を取ると1.3万〜3万分の1）＝ 現在のタイトルの根拠</li>
+      <li>参考: ツイッタラ世論調査「ヒカマー」= 951票・総合2.97・肯定55.4%（ユーザー提供値）</li>
+      <li>ヒカマーWiki 記事${m.wikiArticles}・利用者187（2026-08）／Hikabooru 投稿${fmt(m.booruPosts)}件・タグ${fmt(m.booruTags)}件／ニコニコ「Hikakin_mania」${fmt(m.nicoHikamani)}本／8values ${m.f8values}件</li>
       <li>時代・事件の記述は、ヒカマーWiki（ヒカマー史・炎上一覧・内戦一覧・Handbooks）と810chの実データに基づく</li>`;
   }
 

@@ -59,14 +59,20 @@ window.HK = window.HK || {};
     const handle = opts.handle || makeHandle(rng);
     const startDate = new Date(era.year, rng.int(0, 11), rng.int(1, 28));
     const real = (opts.realEra || opts.realAge) ? { era: opts.realEra || null, age: opts.realAge || null } : null;
+    const path = opts.path ? (D().paths.find(p => p.id === opts.path) || D().paths[0])
+      : rng.wpick(D().paths, p => p.w);
+    const trigger = opts.trigger ? (D().triggers.find(t => t.id === opts.trigger) || D().triggers[0])
+      : rng.wpick(D().triggers, t => t.w);
 
     const S = {
       seed, rng, sex, pref, family, net, sibling, qualities, name, handle, startAge,
       era, startDate, date: startDate, dayNum: 0, age: startAge, real,
       stats: { hp: rng.int(60, 85), happy: rng.int(55, 80), know: rng.int(35, 60), rel: rng.int(50, 75), mental: rng.int(55, 85) },
       hk: {
-        followers: rng.int(1, 4), peakFollowers: 0, goroku: rng.int(1, 5), skill: Math.round((qualities.draw + qualities.beat + qualities.word) / 15),
-        fameRisk: 0, banRisk: 0, nareai: 0, edge: 0, dev: 0, freezes: 0, retireCount: 0, doxxed: false
+        followers: rng.int(1, 4) + (path.fx.followers || 0), peakFollowers: 0, goroku: rng.int(1, 5) + (path.fx.goroku || 0),
+        skill: Math.round((qualities.draw + qualities.beat + qualities.word) / 15) + (net.tech || 0),
+        fameRisk: family.monitor || 4, banRisk: 0, nareai: 0, edge: 0, dev: 0, freezes: 0,
+        retireCount: (path.fx.retireCount || 0), doxxed: false
       },
       money: family.money0,
       focus: "none",
@@ -80,7 +86,7 @@ window.HK = window.HK || {};
       starred: {},
       pending: null,
       ended: false,
-      encounterP: clamp(0.25 + (net.id === "fast" ? 0.12 : net.id === "late" ? -0.06 : 0.04) + (qualities.luck - 50) / 400, 0.12, 0.55),
+      encounterP: clamp(0.25 + ((net.tier != null ? net.tier : 1) - 1) * 0.08 + (qualities.luck - 50) / 400, 0.1, 0.55),
       companions: [],
       _once: {},
       _calDone: {},
@@ -88,16 +94,34 @@ window.HK = window.HK || {};
       _milestones: {},
       _zukan: {}
     };
-    // 仲間（人数ランダム・幅広め）
+    // 参入の経緯・きっかけの残りを適用
+    if (path.fx.heat) S.heat = clamp(S.heat + path.fx.heat, 0, 100);
+    if (path.fx.edge) S.hk.edge = clamp(S.hk.edge + path.fx.edge, 0, 100);
+    if (path.fx.dev) S.hk.dev = clamp(S.hk.dev + path.fx.dev, 0, 100);
+    if (path.fx.nareai) S.hk.nareai = clamp(S.hk.nareai + path.fx.nareai, -100, 100);
+    if (path.fx.flags) path.fx.flags.forEach(f => S.flags.push(f));
+    if (trigger.fx) {
+      const t = trigger.fx;
+      if (t.goroku) S.hk.goroku = clamp(S.hk.goroku + t.goroku, 0, 100);
+      if (t.happy) S.stats.happy = clamp(S.stats.happy + t.happy, 0, 100);
+      if (t.rel) S.stats.rel = clamp(S.stats.rel + t.rel, 0, 100);
+      if (t.know) S.stats.know = clamp(S.stats.know + t.know, 0, 100);
+      if (t.dev) S.hk.dev = clamp(S.hk.dev + t.dev, 0, 100);
+      if (t.skill) S.hk.skill = clamp(S.hk.skill + t.skill, 0, 100);
+    }
+    // 仲間（人数ランダム・名乗りも多様）
     const nComp = rng.int(1, 12);
-    const names = ["カフェオレ_mania", "さんぽ_mania", "クロワッサン_mania", "しおむすび_mania", "まめしば_mania", "夕焼け_mania", "ちくわ_mania", "こたつ_mania", "メロンソーダ_mania", "ふうせん_mania", "すずめ_mania", "こおり_mania", "ペンギン_mania", "うどん_mania", "きなこ_mania", "ぺんのすけ_mania", "くらげ_mania", "バウムクーヘン_mania", "オムライス_mania", "ソーダ水_mania"];
+    const used = new Set();
     for (let i = 0; i < nComp; i++) {
-      const idx = rng.int(0, names.length - 1);
-      const nm = names.splice(idx, 1)[0];
+      let nm = makeHandle(rng), guard = 0;
+      while (used.has(nm) && guard++ < 30) nm = makeHandle(rng);
+      used.add(nm);
       const arc = rng.pick(D().compArcs);
       S.companions.push({ name: nm, arc: arc.id, lines: arc.lines, stage: 0, next: rng.int(2, 20), followers: rng.int(3, 100) });
     }
-    pushLog(S, "birth", `${era.year}年（${era.name}）、${fmtDate(startDate)}。${pref}、${family.label}、${net.label}。${startAge}歳のあなたは「${handle}」として、#新参ヒカマー で挨拶した。`);
+    pushLog(S, "birth", `${era.year}年（${era.name}）、${fmtDate(startDate)}。${pref}、${family.label}、${net.label}。${startAge}歳のあなたは「${handle}」として、#新参ヒカマー で挨拶した。参入のきっかけは、${trigger.label}。`);
+    if (path.id === "reinc") pushLog(S, "debut", "この垢は転生垢だ。前の名前を覚えている人は、もうほとんどいない。");
+    if (path.id === "transfer") pushLog(S, "debut", "元いた界隈のノリが、まだ少し残っている。この海の言葉を、ひとつずつ覚え直す。");
     pushLog(S, "debut", "数分後、通知がついた。「はじめまして、そ決」。界隈の扉が、静かに開いた。");
     unlockZukan(S, "c6");
     unlockZukan(S, eraId(era.year));
@@ -106,7 +130,34 @@ window.HK = window.HK || {};
 
   function eraId(y) { return "t" + y; }
   function makeHandle(rng) {
-    return rng.pick(D().handleNouns) + rng.pick(D().handleMods) + "_mania";
+    const noun = rng.pick(D().handleNouns);
+    const mod = rng.pick(D().handleMods);
+    const romaji = rng.pick(D().romaji || ["hikari", "sakura", "kumo"]);
+    const ext = rng.pick(D().extendWords || ["jaywalk", "osakana"]);
+    const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+    const num = () => String(rng.int(1, 9999));
+    const pats = D().handlePatterns || [];
+    const pat = pats.length ? rng.wpick(pats, p => p.w).id : "mania_u";
+    switch (pat) {
+      case "mania_u": return noun + mod + "_mania";
+      case "mania": return ext + "mania";
+      case "mania_end": return noun + "mania";
+      case "manila": return noun + "_manila";
+      case "mani": return rng.chance(0.5) ? noun + "_mani" : noun + "mani";
+      case "mani_jp": return noun + (rng.chance(0.5) ? "マニ" : "まに");
+      case "mania_jp": return noun + "マニア";
+      case "kin": return rng.pick([noun + "キン", cap(romaji) + "kin", "キン" + noun]);
+      case "tv": return rng.pick([noun + "TV", noun + "キンTV", cap(romaji) + "KinTV"]);
+      case "bot": return rng.pick([noun + "bot", noun + "名言bot", noun + "_bot"]);
+      case "dotted": {
+        const K = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワ";
+        let out = "";
+        const len = rng.int(4, 6);
+        for (let i = 0; i < len; i++) out += K[rng.int(0, K.length - 1)] + (i < len - 1 ? "." : ".");
+        return out;
+      }
+      default: return rng.pick([romaji + num(), romaji + "_" + rng.pick(D().romaji), noun + num(), cap(romaji)]);
+    }
   }
 
   /* ---------- ログ ---------- */

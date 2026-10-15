@@ -41,7 +41,11 @@
         <select id="selEra"><option value="random">くじで決める（2019〜2026）</option></select>
       </div>
       <div class="formrow"><label>参入時の年齢</label>
-        <select id="selAge"><option value="random">くじで決める（12〜18歳）</option></select>
+        <select id="selAge"><option value="random">くじで決める（10〜32歳・10代が多め）</option></select>
+      </div>
+      <div class="formrow"><label>あなた自身（任意）</label>
+        <select id="selRealEra" style="max-width:150px"><option value="none">実際の参入年: 不明</option></select>
+        <select id="selRealAge" style="max-width:150px"><option value="none">当時の年齢: 不明</option></select>
       </div>
     </div>
 
@@ -69,6 +73,7 @@
     <button class="spd" data-s="2">×2</button>
     <button class="spd" data-s="4">×4</button>
     <button class="spd" data-s="8">×8</button>
+    <button class="tgl" id="btnPause">⏸ 一時停止</button>
     <button class="tgl" id="btnSkip">⏩ 次の出来事まで</button>
     <button class="tgl" id="tglAuto">おまかせ: OFF</button>
     <button class="ghost" id="btnQuit">中断</button>
@@ -124,6 +129,7 @@
     <div><span class="rank" id="endRank">C</span></div>
     <p id="endDesc"></p>
     <div class="dim" id="endWho"></div>
+    <p class="dim" id="endReal" style="margin-top:4px"></p>
     <p class="dim" id="endTypeName" style="margin-top:8px"></p>
     <p class="dim" id="endTypeDesc"></p>
   </div>
@@ -143,6 +149,11 @@
   <div class="panel" style="margin-top:14px">
     <h3>心に残る行 <span class="dim small">（★を付けた行・なければランダム）</span></h3>
     <div id="endMoments"></div>
+  </div>
+
+  <div class="panel" style="margin-top:14px">
+    <h3>同時期の参入組のその後</h3>
+    <div id="endComp"></div>
   </div>
 
   <div style="text-align:center">
@@ -236,6 +247,7 @@
 <script src="js/data2.js"></script>
 <script src="js/events2.js"></script>
 <script src="js/extra2.js"></script>
+<script src="js/extra3.js"></script>
 <script src="js/engine2.js"></script>
 <script src="js/ui2.js"></script>
 </body>

@@ -20,6 +20,8 @@ window.HK = window.HK || {};
 
   let S = null;
   let timer = null;
+  let paused = false;
+  let currentShownRecord = null;
   let speed = LS.get(OPT_KEY, { speed: 2 }).speed || 2;
   let auto = LS.get(OPT_KEY, { auto: false }).auto || false;
 
@@ -52,10 +54,22 @@ window.HK = window.HK || {};
       eraSel.appendChild(o);
     });
     const ageSel = $("selAge");
-    for (let a = 12; a <= 18; a++) {
+    for (let a = 10; a <= 32; a++) {
       const o = document.createElement("option");
       o.value = a; o.textContent = a + "歳";
       ageSel.appendChild(o);
+    }
+    const realEraSel = $("selRealEra");
+    for (let y = 2008; y <= 2026; y++) {
+      const o = document.createElement("option");
+      o.value = y; o.textContent = y + "年";
+      realEraSel.appendChild(o);
+    }
+    const realAgeSel = $("selRealAge");
+    for (let a = 8; a <= 45; a++) {
+      const o = document.createElement("option");
+      o.value = a; o.textContent = a + "歳";
+      realAgeSel.appendChild(o);
     }
     $("btnStart").addEventListener("click", () => {
       const clean = s => (s || "").replace(/[<>&"'`]/g, "").slice(0, 24);
@@ -65,6 +79,8 @@ window.HK = window.HK || {};
       if ($("selSex").value !== "random") opts.sex = $("selSex").value;
       if (eraSel.value !== "random") opts.era = parseInt(eraSel.value, 10);
       if (ageSel.value !== "random") opts.age = parseInt(ageSel.value, 10);
+      if (realEraSel.value !== "none") opts.realEra = parseInt(realEraSel.value, 10);
+      if (realAgeSel.value !== "none") opts.realAge = parseInt(realAgeSel.value, 10);
       startGame(opts);
     });
   }
@@ -82,7 +98,11 @@ window.HK = window.HK || {};
 
   /* ---------- ループ ---------- */
   function speedMs() { return { 1: 800, 2: 400, 4: 200, 8: 100 }[speed] || 400; }
-  function schedule(ms) { clearTimeout(timer); if (!S || S.ended) return; timer = setTimeout(tick, ms != null ? ms : speedMs()); }
+  function schedule(ms) {
+    clearTimeout(timer);
+    if (!S || S.ended || paused) return;
+    timer = setTimeout(tick, ms != null ? ms : speedMs());
+  }
 
   function tick() {
     if (!S || S.ended) return;
@@ -282,11 +302,47 @@ window.HK = window.HK || {};
   /* ---------- エンディング ---------- */
   function showEnding() {
     if (!S || !S.title) return;
-    renderEndingScreen({
-      record: null, live: S
-    });
-    renderCardFor(S);
+    const r = recordFromState(S);
+    currentShownRecord = r;
+    displayEnding(r);
+    paintCard(r);
     show("ending");
+  }
+
+  /* 記録1件ぶんのエンディング表示（現在の人生 / 過去の記録 共通） */
+  function displayEnding(r) {
+    $("endTitle").textContent = r.title;
+    $("endRank").textContent = r.rank;
+    $("endRank").className = "rank r-" + r.rank;
+    $("endDesc").textContent = r.desc;
+    $("endWho").textContent = `${r.name}／${r.handle} ・ ${r.era}年参入 ・ ${r.startStr} → ${r.endStr}（${r.age0}歳 → ${r.ageEnd}歳）`;
+    $("endTypeName").textContent = `終わり方: ${r.endingName}`;
+    $("endTypeDesc").textContent = r.endingDesc;
+    const rr = r.real || {};
+    $("endReal").textContent = (rr.era || rr.age)
+      ? `あなたの実際: ${rr.era ? rr.era + "年参入" : "参入時期不明"}${rr.age ? "・当時" + rr.age + "歳" : ""} ／ 今回: ${r.era}年参入・${r.age0}歳`
+      : "";
+    const rs = r.realStats || {};
+    $("endStats").innerHTML = `
+      <div class="secthead">― リアル側 ―</div>
+      <div class="dstat"><span>体調 / 幸福</span><b>${Math.round(rs.hp || 0)} / ${Math.round(rs.happy || 0)}</b></div>
+      <div class="dstat"><span>学業・仕事 / 人間関係</span><b>${Math.round(rs.know || 0)} / ${Math.round(rs.rel || 0)}</b></div>
+      <div class="dstat"><span>メンタル</span><b>${Math.round(rs.mental || 0)}</b></div>
+      <div class="dstat"><span>お金</span><b>¥${fmt(rs.money || 0)}</b></div>
+      <div class="secthead">― ネット側 ―</div>
+      <div class="dstat"><span>界隈歴</span><b>${fmt(r.days)}日</b></div>
+      <div class="dstat"><span>最高フォロワー</span><b>${fmt(r.peak)}</b></div>
+      <div class="dstat"><span>語録力 / 技量</span><b>${r.goroku} / ${r.skill}</b></div>
+      <div class="dstat"><span>凍結 / 特定</span><b>${r.freezes}回 / ${r.doxxed ? "あり" : "なし"}</b></div>
+      <div class="dstat"><span>引退宣言</span><b>${r.retires}回</b></div>`;
+    $("endChain").innerHTML = r.chain.map(c =>
+      `<div class="chainrow"><span>${c.label}</span><b>1 / ${formatInv(c.inv)}</b></div>`
+    ).join("") + `<div class="chainrow total"><span>この界隈歴の希少度（モデル計算）</span><b>約 1 / ${fmt(1 / r.product)}</b></div>`;
+    $("endMoments").innerHTML = (r.lines || []).map(l => `<div class="moment">${esc(l)}</div>`).join("") || `<div class="dim small">心に残る行は、記録の中にある。</div>`;
+    const comps = r.comps || [];
+    $("endComp").innerHTML = comps.length
+      ? comps.map(c => `<div class="comp"><b>${esc(c.name)}</b><span class="dim">${esc(c.fate)}</span></div>`).join("")
+      : `<div class="dim small">—</div>`;
   }
 
   function renderEndingScreen({ record, live }) {
@@ -345,15 +401,17 @@ window.HK = window.HK || {};
       title: S.title.name, rank: S.title.rank, desc: S.title.desc,
       endingId: S.ending.id, endingName: S.ending.name, endingDesc: S.ending.desc,
       chain: S.prob.chain, product: S.prob.product,
+      real: S.real || null,
+      realStats: { hp: S.stats.hp, happy: S.stats.happy, know: S.stats.know, rel: S.stats.rel, mental: S.stats.mental, money: S.money },
+      comps: S.companions.map(c => ({ name: c.name, fate: (D().compFates && D().compFates[c.arc]) || "行方不明のまま" })),
       lines: starLines, ts: new Date().toISOString()
     };
   }
 
   /* ---------- カード ---------- */
-  function renderCardFor(S) {
+  function paintCard(r) {
     const cv = $("cardCanvas"); const ctx = cv.getContext("2d");
     const W = 1080, H = 1350;
-    const r = recordFromState(S);
     ctx.fillStyle = "#0b0f14"; ctx.fillRect(0, 0, W, H);
     ctx.strokeStyle = "#233040"; ctx.lineWidth = 3; ctx.strokeRect(40, 40, W - 80, H - 80);
     ctx.fillStyle = "#ff8a3d"; ctx.font = "700 40px 'Noto Sans JP', sans-serif";
@@ -451,6 +509,12 @@ window.HK = window.HK || {};
     show("memorial");
   }
   function renderEndingRecord(m) {
+    currentShownRecord = m;
+    displayEnding(m);
+    paintCard(m);
+    show("ending");
+  }
+  function _legacyRecord(m) {
     // 過去の記録を再表示（カードは描き直し）
     const fake = {
       name: m.name, handle: m.handle, era: m.era, eraName: m.eraName,
@@ -538,15 +602,23 @@ window.HK = window.HK || {};
     $("tglAuto").classList.toggle("on", auto);
     $("tglAuto").textContent = auto ? "おまかせ: ON" : "おまかせ: OFF";
     $("btnSkip").addEventListener("click", skip);
+    $("btnPause").addEventListener("click", () => {
+      paused = !paused;
+      $("btnPause").classList.toggle("on", paused);
+      $("btnPause").textContent = paused ? "▶ 再開" : "⏸ 一時停止";
+      if (paused) clearTimeout(timer);
+      else schedule();
+    });
     $("btnDownload").addEventListener("click", () => {
       const a = document.createElement("a");
-      a.download = `4manbun_${S.handle}_D${S.dayNum}.png`;
+      const r = currentShownRecord || (S ? recordFromState(S) : null);
+      a.download = `4manbun_${r ? r.handle : "record"}_${r ? r.days : 0}day.png`;
       a.href = $("cardCanvas").toDataURL("image/png");
       a.click();
     });
-    $("btnMemorial").addEventListener("click", () => { $("btnDownload").style.display = ""; saveMemorial(); showMemorial(); });
-    $("btnAgain").addEventListener("click", () => { $("btnDownload").style.display = ""; S = null; show("start"); });
-    $("btnAgain2").addEventListener("click", () => { $("btnDownload").style.display = ""; S = null; show("start"); });
+    $("btnMemorial").addEventListener("click", () => { if (S && !S.ended) return; saveMemorial(); showMemorial(); });
+    $("btnAgain").addEventListener("click", () => { S = null; currentShownRecord = null; show("start"); });
+    $("btnAgain2").addEventListener("click", () => { S = null; currentShownRecord = null; show("start"); });
   }
 
   /* ---------- しくみ ---------- */

@@ -1,5 +1,7 @@
 /* v2 additions */
 #lifeDay { color: var(--acc2); }
+.secthead { font-size: 11px; color: var(--acc); letter-spacing: .2em; margin: 8px 0 4px; font-weight: 800; }
+.secthead:first-child { margin-top: 0; }
 .focusbox { display: flex; flex-wrap: wrap; gap: 6px; }
 .focuschip { background: var(--panel2); border: 1px solid var(--border); color: var(--dim); border-radius: 999px; padding: 4px 12px; font-size: 12.5px; cursor: pointer; }
 .focuschip.on { background: #3d2b12; border-color: #7a5a2a; color: var(--acc2); font-weight: 700; }

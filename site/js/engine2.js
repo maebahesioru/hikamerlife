@@ -46,7 +46,8 @@ window.HK = window.HK || {};
     const seed = opts.seed != null ? opts.seed : (Date.now() % 2147483647);
     const rng = new RNG(seed);
     const era = opts.era != null ? D().eras.find(e => e.year === opts.era) || D().eras[7] : rng.pick(D().eras);
-    const startAge = opts.age != null ? opts.age : rng.int(12, 18);
+    const startAge = opts.age != null ? opts.age
+      : (rng.chance(0.72) ? rng.int(10, 18) : rng.chance(0.68) ? rng.int(19, 24) : rng.int(25, 32));
     const sex = opts.sex || (rng.chance(0.92) ? "m" : "f");
     const pref = rng.wpick(D().prefs, p => p[1])[0];
     const family = rng.wpick(D().families, f => f.w);
@@ -57,10 +58,11 @@ window.HK = window.HK || {};
     const name = opts.name || (rng.pick(D().familyNames) + " " + given);
     const handle = opts.handle || makeHandle(rng);
     const startDate = new Date(era.year, rng.int(0, 11), rng.int(1, 28));
+    const real = (opts.realEra || opts.realAge) ? { era: opts.realEra || null, age: opts.realAge || null } : null;
 
     const S = {
       seed, rng, sex, pref, family, net, sibling, qualities, name, handle, startAge,
-      era, startDate, date: startDate, dayNum: 0, age: startAge,
+      era, startDate, date: startDate, dayNum: 0, age: startAge, real,
       stats: { hp: rng.int(60, 85), happy: rng.int(55, 80), know: rng.int(35, 60), rel: rng.int(50, 75), mental: rng.int(55, 85) },
       hk: {
         followers: rng.int(1, 4), peakFollowers: 0, goroku: rng.int(1, 5), skill: Math.round((qualities.draw + qualities.beat + qualities.word) / 15),
@@ -86,8 +88,8 @@ window.HK = window.HK || {};
       _milestones: {},
       _zukan: {}
     };
-    // 仲間（人数ランダム）
-    const nComp = rng.int(1, 8);
+    // 仲間（人数ランダム・幅広め）
+    const nComp = rng.int(1, 12);
     const names = ["カフェオレ_mania", "さんぽ_mania", "クロワッサン_mania", "しおむすび_mania", "まめしば_mania", "夕焼け_mania", "ちくわ_mania", "こたつ_mania", "メロンソーダ_mania", "ふうせん_mania", "すずめ_mania", "こおり_mania", "ペンギン_mania", "うどん_mania", "きなこ_mania", "ぺんのすけ_mania", "くらげ_mania", "バウムクーヘン_mania", "オムライス_mania", "ソーダ水_mania"];
     for (let i = 0; i < nComp; i++) {
       const idx = rng.int(0, names.length - 1);
@@ -174,7 +176,7 @@ window.HK = window.HK || {};
     const hk = S.hk;
     const focus = D().focuses.find(f => f.id === S.focus) || D().focuses[0];
     // 熱量（重点によって回復量が変わる）
-    const regen = { none: 0.45, nareai: 0.65, sakusei: 0.6, seisai: 0.65, rom: 0.12, real: 0.08 }[S.focus] || 0.3;
+    const regen = { none: 0.45, nareai: 0.65, sakusei: 0.6, seisai: 0.65, rom: 0.12, real: 0.08, politics: 0.5, alqaeda: 0.6, factdev: 0.55, toolwork: 0.55, sales: 0.6, offline: 0.55 }[S.focus] || 0.3;
     S.heat = clamp(S.heat - 0.55 + regen, 0, 100);
     if (S.heat < 6) {
       S.lowHeatDays++;
@@ -315,7 +317,12 @@ window.HK = window.HK || {};
       graduated: "スマホを引き出しにしまった。勉強、部活、進路。現実が本業になった。",
       expelled: "居場所がなくなった。TLを去るボタンはないから、あなたはただ、開かなくなった。",
       burned: "凍結と疲れが積もって、あなたは画面を閉じた。垢は残っている。それだけのことが、少しだけ救いだった。",
-      veteran_end: "5年。もはや界隈の化石だ。あなたは静かに画面を閉じ、長すぎた界隈歴に自分で幕を引いた。"
+      veteran_end: "5年。もはや界隈の化石だ。あなたは静かに画面を閉じ、長すぎた界隈歴に自分で幕を引いた。",
+      account_delete: "ポストを一つずつ消した。消し終えた画面は、生まれたてのアカウントみたいに真っ白だった。",
+      immigrate: "別の界隈の空気は、最初だけ匂いが違った。すぐに慣れる。ネットはどこも同じ海だ。",
+      ghost: "垢は残した。フォローも残した。ただ、話さなくなった。たまに、いいねだけがつく。",
+      rest: "「しばらくお休みします」。その「しばらく」の時計は、まだ動いている。",
+      burnout: "燃え尽きたのは、ある朝だった。理由はなく、ただ、火がなかった。薪はあったのに。"
     }[type] || "あなたの界隈歴は、ここで一区切りついた。";
     pushLog(S, "ending", endLine);
   }
@@ -430,8 +437,11 @@ window.HK = window.HK || {};
     // 節目
     milestones(S);
 
-    // 静かな消滅
-    if (S.faded && S.lowHeatDays > 45) { endGame(S, "fade"); return { status: "ended" }; }
+    // 静かな消滅（ROMとして残った場合は「幽霊」）
+    if (S.faded && S.lowHeatDays > 45) {
+      endGame(S, (S.flags.includes("rom") || S.focus === "rom") ? "ghost" : "fade");
+      return { status: "ended" };
+    }
     // 上限（5年を超えたら、長すぎる界隈歴として幕）
     if (S.dayNum >= 1826) { endGame(S, "veteran_end"); return { status: "ended" }; }
 

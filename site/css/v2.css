@@ -77,3 +77,17 @@
 .filmcard { max-width: 640px; font-size: 19px; line-height: 1.9; color: var(--text); text-align: center; opacity: 0; transform: translateY(8px); transition: opacity .6s ease, transform .6s ease; }
 .filmcard.on { opacity: 1; transform: none; }
 .filmctrl { display: flex; gap: 10px; align-items: center; }
+/* v3.7追加: 界隈研究室 */
+.labwrap { max-width: 720px; margin: 0 auto; padding: 0 14px 60px; }
+.labrow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 10px; }
+.labrow label { color: var(--dim); font-size: 13px; }
+.labsel { background: var(--panel2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
+.labgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 12px; }
+.labstat { background: var(--panel2); border: 1px solid var(--border); border-radius: 10px; padding: 10px; text-align: center; }
+.labstat b { display: block; font-size: 20px; color: var(--acc2); }
+.labstat span { font-size: 11px; color: var(--dim); }
+.labbar { display: flex; align-items: center; gap: 8px; margin: 3px 0; font-size: 13px; }
+.labbar span { flex: 0 0 100px; color: var(--dim); }
+.labbar i { display: block; height: 10px; background: var(--acc); border-radius: 5px; min-width: 2px; }
+.labbar b { font-size: 12px; color: var(--dim); }
+.labrank { font-size: 13.5px; padding: 3px 0; border-bottom: 1px dashed var(--border); }

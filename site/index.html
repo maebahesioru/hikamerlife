@@ -74,6 +74,7 @@
       <button class="btn sub" data-nav="about">しくみ・人口検査・データ</button>
       <button class="btn sub" data-nav="zukan">ヒカマーズ図鑑</button>
       <button class="btn sub" data-nav="memorial">メモリアル</button>
+      <button class="btn sub" data-nav="lab">界隈研究室</button>
     </div>
     <p class="note">15歳以上の方を対象にしたシミュレーションです。いじめ、特定、凍結、炎上、心の疲弊などの重い場面も、
       界隈の実際の文化・事件に沿って出てきます。<b>死の描写はありません。終わりはすべて「引退」です。</b><br>
@@ -256,6 +257,7 @@
   途中でタブを閉じても、同じブラウザなら<b>「つづきから」</b>で再開できる（10日ごと＋閉じる時に自動保存）。</p>
   <p class="dim small">スマホでは共有メニューの「ホーム画面に追加」で、アプリのように全画面で開けます。</p>
   <p class="dim small">エンディングで「みんなのメモリアルに残す」を押すと、公開メモリアルに記録が並び、だれでもろうそくを灯し、ひとことを残せます（公開されるのはハンドル・称号・日数・時代・終わり方などのゲーム内情報だけです）。</p>
+  <p class="dim small">「界隈研究室」では、条件（時代/経緯/年齢）を決めて人生をまとめて走らせ、終わり方や称号の分布を並べて見られます。ここで走った人生は記録に残りません。</p>
 
   <h2>使っている実データ</h2>
   <ul id="aboutData"></ul>
@@ -323,5 +325,31 @@
 <script src="js/extra4.js"></script>
 <script src="js/engine2.js"></script>
 <script src="js/ui2.js"></script>
+<!-- ================= 界隈研究室 ================= -->
+<section class="screen" id="screen-lab">
+  <div class="hero" style="padding:30px 10px 0"><h1 style="font-size:24px">界隈研究室</h1></div>
+  <div class="labwrap">
+    <p class="dim small" style="margin-bottom:14px">条件を決めて人生をまとめて走らせ、並べて見る場所。ここで走った人生は記録に残らない。</p>
+    <div class="panel">
+      <div class="labrow">
+        <label>時代</label><select id="labEra" class="labsel"><option value="random">くじで決める</option></select>
+        <label>経緯</label><select id="labPath" class="labsel"><option value="random">くじで決める</option></select>
+        <label>開始年齢</label><select id="labAge" class="labsel"><option value="random">くじで決める</option></select>
+      </div>
+      <div class="labrow">
+        <label>本数</label>
+        <select id="labN" class="labsel"><option value="10">10本</option><option value="30" selected>30本</option><option value="100">100本</option></select>
+        <button class="btn sub" id="btnLabRun">▶ 実験開始</button>
+        <span class="dim small" id="labProg"></span>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>結果</h3>
+      <div id="labOut" class="dim">まだ何も走っていない。</div>
+    </div>
+    <div class="navrow" style="justify-content:center"><button class="ghost" data-nav="start">もどる</button></div>
+  </div>
+</section>
+
 </body>
 </html>

@@ -980,6 +980,76 @@ window.HK = window.HK || {};
     $("filmCount").textContent = `${filmIdx + 1} / ${r.lines.length}`;
   }
   function stopFilm() { clearInterval(filmTimer); filmTimer = null; $("filmOv").hidden = true; }
+  /* ---------- 界隈研究室（まとめシミュレーション） ---------- */
+  function labOpts() {
+    const o = {};
+    const era = $("labEra").value; if (era !== "random") o.era = parseInt(era, 10);
+    const path = $("labPath").value; if (path !== "random") o.path = path;
+    const age = $("labAge").value; if (age !== "random") o.age = parseInt(age, 10);
+    return o;
+  }
+  function runLabLife(base) {
+    const S = HK.engine2.newGame(Object.assign({}, base, { seed: Math.floor(Math.random() * 2147483000) }));
+    let guard = 0;
+    while (!S.ended && guard++ < 2400) {
+      HK.engine2.step(S);
+      if (S.ended) break;
+      if (S.pending) HK.engine2.resolve(S, S.pending.kind === "decision" ? (S.rng.chance(0.7) ? 0 : 2) : 0);
+    }
+    return {
+      days: S.dayNum, peak: S.hk.peakFollowers, handle: S.handle,
+      title: S.title ? S.title.name : "—", rank: S.title ? S.title.rank : "-",
+      ending: S.ending ? S.ending.name : "（未完）", freezes: S.hk.freezes,
+      doxxed: S.flags.includes("doxxed")
+    };
+  }
+  let labBusy = false;
+  function startLab() {
+    if (labBusy) return;
+    labBusy = true;
+    const N = parseInt($("labN").value, 10);
+    const base = labOpts();
+    const runs = [];
+    const btn = $("btnLabRun");
+    btn.disabled = true;
+    $("labOut").innerHTML = `<div class="dim">走らせている…</div>`;
+    const tickLab = () => {
+      const t0 = performance.now();
+      while (runs.length < N && performance.now() - t0 < 120) {
+        try { runs.push(runLabLife(base)); } catch (e) { }
+      }
+      $("labProg").textContent = `${runs.length} / ${N} 本`;
+      if (runs.length < N) { setTimeout(tickLab, 30); return; }
+      $("labProg").textContent = `${N} 本 完了`;
+      renderLabResults(runs);
+      btn.disabled = false; labBusy = false;
+    };
+    setTimeout(tickLab, 50);
+  }
+  function labMedian(a) { const s = [...a].sort((x, y) => x - y); const m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : Math.round((s[m - 1] + s[m]) / 2); }
+  function renderLabResults(runs) {
+    const days = runs.map(r => r.days), peaks = runs.map(r => r.peak);
+    const doxxRate = Math.round(100 * runs.filter(r => r.doxxed).length / runs.length);
+    const freezeRate = Math.round(100 * runs.filter(r => r.freezes > 0).length / runs.length);
+    const endCount = {};
+    runs.forEach(r => { endCount[r.ending] = (endCount[r.ending] || 0) + 1; });
+    const endRows = Object.entries(endCount).sort((a, b) => b[1] - a[1]).map(([k, v]) =>
+      `<div class="labbar"><span>${esc(k)}</span><i style="width:${(100 * v / runs.length).toFixed(1)}%"></i><b>${v}本</b></div>`).join("");
+    const top = [...runs].sort((a, b) => b.peak - a.peak).slice(0, 5).map((r, i) =>
+      `<div class="labrank"><span class="rank r-${esc(r.rank)} small">${esc(r.rank)}</span> ${i + 1}. ${esc(r.title)} — @${esc(r.handle)} <span class="dim small">（${fmt(r.days)}日・最高${fmt(r.peak)}）</span></div>`).join("");
+    $("labOut").innerHTML = `
+      <div class="labgrid">
+        <div class="labstat"><b>${runs.length}</b><span>本の人生</span></div>
+        <div class="labstat"><b>${fmt(labMedian(days))}日</b><span>界隈歴 中央値</span></div>
+        <div class="labstat"><b>${fmt(labMedian(peaks))}</b><span>最高フォロワー 中央値</span></div>
+        <div class="labstat"><b>${doxxRate}%</b><span>特定された割合</span></div>
+        <div class="labstat"><b>${freezeRate}%</b><span>凍結された割合</span></div>
+      </div>
+      <div class="secthead">― 終わり方の内訳 ―</div>${endRows}
+      <div class="secthead">― 輝いた人生トップ5 ―</div>${top}
+      <div class="dim small" style="margin-top:8px">決定の場面は自動で選ばれる（おまかせと同じ: 7割は前向き・3割は慎重）。ここで走った人生は記録に残らない。</div>`;
+  }
+
   function renderEndingRecord(m) {
     currentShownRecord = m;
     displayEnding(m);
@@ -1048,6 +1118,7 @@ window.HK = window.HK || {};
         if (n === "memorial") { showMemorial(); return; }
         if (n === "zukan") { showZukan(); return; }
         if (n === "about") { show("about"); return; }
+        if (n === "lab") { show("lab"); return; }
         if (n === "start") { show("start"); return; }
       });
     });
@@ -1120,6 +1191,7 @@ window.HK = window.HK || {};
     $("filmNext").addEventListener("click", () => { if (!albumRec) return; filmIdx = (filmIdx + 1) % albumRec.lines.length; renderFilm(); });
     $("filmPrev").addEventListener("click", () => { if (!albumRec) return; filmIdx = (filmIdx - 1 + albumRec.lines.length) % albumRec.lines.length; renderFilm(); });
     $("btnPublish").addEventListener("click", publishRecord);
+    $("btnLabRun").addEventListener("click", startLab);
     $("btnAgain").addEventListener("click", () => { S = null; currentShownRecord = null; show("start"); });
     $("btnAgain2").addEventListener("click", () => { S = null; currentShownRecord = null; show("start"); });
   }
@@ -1139,6 +1211,12 @@ window.HK = window.HK || {};
 
   function init() {
     bindStart(); bindNav(); bindControls(); bindLive(); fillAbout();
+    const labEra = $("labEra");
+    D().eras.forEach(e => { const o = document.createElement("option"); o.value = e.year; o.textContent = `${e.year}年（${e.name}）`; labEra.appendChild(o); });
+    const labPath = $("labPath");
+    D().paths.forEach(p => { const o = document.createElement("option"); o.value = p.id; o.textContent = p.label; labPath.appendChild(o); });
+    const labAge = $("labAge");
+    for (let a = 10; a <= 32; a++) { const o = document.createElement("option"); o.value = a; o.textContent = a + "歳"; labAge.appendChild(o); }
     window.addEventListener("pagehide", saveLife);
     document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") saveLife(); });
     refreshResumeBtn();

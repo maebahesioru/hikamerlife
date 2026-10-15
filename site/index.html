@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>2万分の1のヒカマー — 時代をくじで引いて、界隈歴を生きる</title>
 <meta name="description" content="ヒカマーの名乗りを実測調査——活動中のヒカマーは約3,000〜8,000人、日本のネット人口の約2万分の1。ランダムな時代・年齢・経緯・環境でヒカマーとして参入し、1日ずつ界隈歴を生きて、引退までを体験するブラウザゲーム。">
+<meta property="og:title" content="2万分の1のヒカマー — 界隈歴シミュレーション">
+<meta property="og:description" content="時代・年齢・家・ネット環境・経緯をくじで引いてヒカマーとして参入し、1日ずつ界隈歴を生きる。途中で閉じても、同じブラウザなら続きから。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://hikamerlife.hikamers.app/">
+<meta property="og:image" content="https://hikamerlife.hikamers.app/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="2万分の1のヒカマー — 界隈歴シミュレーション">
+<meta name="twitter:description" content="時代・年齢・経緯・環境をくじで引いて参入。1日ずつ進む界隈歴シミュレーション。">
+<meta name="twitter:image" content="https://hikamerlife.hikamers.app/og.png">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/v2.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🦪</text></svg>">
@@ -60,6 +69,7 @@
     </div>
 
     <button class="btn" id="btnStart">くじを引いて参入する</button>
+    <button class="btn sub" id="btnResume" style="display:none">つづきから</button>
     <div class="footlinks">
       <button class="btn sub" data-nav="about">しくみ・人口検査・データ</button>
       <button class="btn sub" data-nav="zukan">ヒカマーズ図鑑</button>
@@ -91,6 +101,10 @@
 
   <div class="gridmain">
     <div>
+      <div class="panel">
+        <h3>あなたの部屋</h3>
+        <div id="sceneBox"></div>
+      </div>
       <div class="panel">
         <h3>状態</h3>
         <div id="statList"></div>
@@ -220,7 +234,8 @@
   <p>ランダムな<b>時代・年齢・家・ネット環境・参入の経緯（新規／転生復活／他界隈からの合流）・きっかけ</b>をくじで引き、<b>#新参ヒカマー</b>として参入する。
   以後は<b>1日ずつ</b>進む。⏸一時停止・⏩スキップ・×1〜×8速度・重点12種・おまかせで放置も可。
   終わりは死亡ではなく<b>引退（11種）</b>。記録は「リアル側／ネット側」に分けて残り、メモリアルから「もう一度見る」で開ける。「ろうそく」を灯し、「ひとこと」を残せる。
-  人生画面には<b>参入証</b>・<b>界隈地図（1マス = 1週間）</b>・<b>継続曲線（同時期参入組の生き残り）</b>が並ぶ。</p>
+  人生画面には<b>参入証</b>・<b>あなたの部屋（機材が育つ）</b>・<b>界隈地図（1マス = 1週間）</b>・<b>継続曲線（同時期参入組の生き残り）</b>が並ぶ。
+  途中でタブを閉じても、同じブラウザなら<b>「つづきから」</b>で再開できる（10日ごと＋閉じる時に自動保存）。</p>
   <p class="dim small">スマホでは共有メニューの「ホーム画面に追加」で、アプリのように全画面で開けます。</p>
 
   <h2>使っている実データ</h2>

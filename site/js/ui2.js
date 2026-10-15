@@ -11,12 +11,14 @@ window.HK = window.HK || {};
 
   const LS = {
     get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
-    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } }
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } },
+    remove(k) { try { localStorage.removeItem(k); } catch (e) { } }
   };
   const MEM_KEY = "hk4m2.memorial";
   const ZUK_KEY = "hk4m2.zukan";
   const TIT_KEY = "hk4m2.titles";
   const OPT_KEY = "hk4m2.opts";
+  const SAVE_KEY = "hk4m2.save";
 
   let S = null;
   let timer = null;
@@ -43,6 +45,7 @@ window.HK = window.HK || {};
   function show(name) {
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("on"));
     $("screen-" + name).classList.add("on");
+    if (name === "start") refreshResumeBtn();
     window.scrollTo(0, 0);
   }
 
@@ -84,6 +87,13 @@ window.HK = window.HK || {};
       triggerSel.appendChild(o);
     });
     $("btnStart").addEventListener("click", () => {
+      if (hasSave()) {
+        const d = LS.get(SAVE_KEY, null);
+        const info = d && d.st ? `（@${d.st.handle}・Day ${d.st.dayNum}）` : "";
+        if (!confirm(`保存中の界隈歴${info}があります。新しく始めると上書きされます。新しく始めますか？`)) return;
+        LS.remove(SAVE_KEY);
+        refreshResumeBtn();
+      }
       const clean = s => (s || "").replace(/[<>&"'`]/g, "").slice(0, 24);
       const opts = {};
       if ($("inpName").value.trim()) opts.name = clean($("inpName").value.trim());
@@ -97,17 +107,58 @@ window.HK = window.HK || {};
       if (triggerSel.value !== "random") opts.trigger = triggerSel.value;
       startGame(opts);
     });
+    $("btnResume").addEventListener("click", resumeGame);
   }
 
   function startGame(opts) {
     S = HK.engine2.newGame(opts);
     window.__S = S;
-    $("lifeTitleSub").textContent = `第${LS.get("hk4m2.plays", 0) + 1}回の界隈歴`;
-    LS.set("hk4m2.plays", LS.get("hk4m2.plays", 0) + 1);
+    S.playNo = LS.get("hk4m2.plays", 0) + 1;
+    $("lifeTitleSub").textContent = `第${S.playNo}回の界隈歴`;
+    LS.set("hk4m2.plays", S.playNo);
     hideModal();
     renderAll();
     show("life");
     schedule(300);
+  }
+
+  /* ---------- 途中保存 / つづきから ---------- */
+  function saveLife() {
+    if (!S || S.ended) return;
+    const st = Object.assign({}, S);
+    delete st.rng;
+    LS.set(SAVE_KEY, { v: 3, at: Date.now(), st, rng: S.rng ? S.rng._a : null });
+  }
+  function loadLife() {
+    const d = LS.get(SAVE_KEY, null);
+    if (!d || d.v !== 3 || !d.st || d.st.ended || !(d.st.dayNum >= 1)) return null;
+    try {
+      const st = d.st;
+      st.rng = new HK.engine2.RNG(d.rng != null ? d.rng : st.seed);
+      st.startDate = new Date(st.startDate);
+      st.date = new Date(st.date);
+      return st;
+    } catch (e) { return null; }
+  }
+  function hasSave() { return !!loadLife(); }
+  function refreshResumeBtn() {
+    const b = $("btnResume");
+    if (!b) return;
+    const d = LS.get(SAVE_KEY, null);
+    if (hasSave()) {
+      b.style.display = "";
+      b.textContent = `つづきから（@${d.st.handle}・Day ${d.st.dayNum}・${d.st.era ? d.st.era.year + "年" : ""}）`;
+    } else b.style.display = "none";
+  }
+  function resumeGame() {
+    const st = loadLife();
+    if (!st) { toast("保存された界隈歴を開けなかった"); LS.remove(SAVE_KEY); refreshResumeBtn(); return; }
+    S = st; window.__S = S;
+    $("lifeTitleSub").textContent = `第${S.playNo || 1}回の界隈歴（つづき）`;
+    hideModal();
+    renderAll();
+    show("life");
+    if (S.pending) showPending(); else schedule(300);
   }
 
   /* ---------- ループ ---------- */
@@ -122,6 +173,7 @@ window.HK = window.HK || {};
     if (!S || S.ended) return;
     const r = HK.engine2.step(S);
     renderAll();
+    if (S.dayNum % 10 === 0) saveLife();
     if (r.status === "ended" || S.ended) { setTimeout(showEnding, 800); return; }
     if (S.pending) { showPending(); return; }
     schedule();
@@ -138,6 +190,7 @@ window.HK = window.HK || {};
       if (S.pending) break;
     }
     renderAll();
+    saveLife();
     if (S.ended) { showEnding(); return; }
     if (S.pending) { showPending(); return; }
     toast(`${guard}日スキップした（次の出来事まで）`, "hk");
@@ -218,7 +271,7 @@ window.HK = window.HK || {};
   /* ---------- レンダリング ---------- */
   function renderAll() {
     if (!S) return;
-    renderHeader(); renderCert(); renderStats(); renderHk(); renderFocus(); renderLog(); renderComp(); renderMap(); renderSurv();
+    renderScene(); renderHeader(); renderCert(); renderStats(); renderHk(); renderFocus(); renderLog(); renderComp(); renderMap(); renderSurv();
   }
   function renderHeader() {
     $("lifeHandle").textContent = S.handle;
@@ -237,6 +290,157 @@ window.HK = window.HK || {};
       <div class="certrow"><span>経緯</span><b>${esc(p.label)}</b></div>
       <div class="certrow"><span>きっかけ</span><b>${esc(t.label)}</b></div>
       <div class="certrow"><span>環境</span><b>${esc(S.pref)}／${esc(S.family.label)}／${esc(S.net.label)}</b></div>`;
+  }
+
+  /* ---------- 部屋シーン ---------- */
+  let sceneKey = "";
+  function sceneStage() {
+    const hk = S.hk;
+    let dev = 0;
+    if ((S.net && S.net.id === "jippc") || S.money >= 300000 || hk.skill >= 40) dev = 2;
+    else if ((S.net && (S.net.tier || 1) >= 2) || S.money >= 80000 || hk.skill >= 20) dev = 1;
+    if (dev >= 2 && hk.skill >= 60 && hk.followers >= 1000) dev = 3;
+    let lvl = 0;
+    if (hk.followers >= 10000) lvl = 4;
+    else if (hk.followers >= 1000) lvl = 3;
+    else if (hk.followers >= 100) lvl = 2;
+    else if (hk.followers >= 10) lvl = 1;
+    return { dev, lvl, night: (S.dayNum % 14) < 10 };
+  }
+  function sceneCaption(st) {
+    const where = st.dev >= 2 ? "モニターの明かり" : st.dev === 1 ? "小さな画面の明かり" : "スマホの明かり";
+    const when = st.night ? "深夜" : "昼下がり";
+    if (S.faded) return `${when}の部屋。${where}は、少し暗くなっている。`;
+    if (st.lvl >= 3) return `${when}の部屋。${where}だけが、あなたの戦場だ。壁には、残してきた記録。`;
+    return `${when}の部屋。${where}だけが、あなたの戦場だ。`;
+  }
+  function renderScene() {
+    const el = $("sceneBox");
+    if (!el || !S) return;
+    const st = sceneStage();
+    const key = [st.dev, st.lvl, st.night ? 1 : 0, S.faded ? 1 : 0].join("|");
+    if (key === sceneKey) return;
+    sceneKey = key;
+    el.innerHTML = `<canvas id="sceneCv" width="640" height="360"></canvas><div class="dim small" style="margin-top:6px">${sceneCaption(st)}</div>`;
+    drawScene($("sceneCv"), st);
+  }
+  function drawScene(cv, st) {
+    if (!cv) return;
+    const x = cv.getContext("2d");
+    const night = st.night;
+    const dim = S.faded ? 0.45 : 1;
+    // 部屋（壁と床の境目をはっきり）
+    x.fillStyle = night ? "#1a2133" : "#232c42";
+    x.fillRect(0, 0, 640, 360);
+    x.fillStyle = night ? "#0d111d" : "#141a2c";
+    x.fillRect(0, 272, 640, 88);
+    x.fillStyle = "#2f3d5c";
+    x.fillRect(0, 268, 640, 5);
+    // 窓
+    x.fillStyle = "#0b0f1c";
+    x.fillRect(472, 46, 108, 118);
+    x.strokeStyle = "#2a3550"; x.lineWidth = 4;
+    x.strokeRect(472, 46, 108, 118);
+    x.beginPath(); x.moveTo(526, 46); x.lineTo(526, 164); x.moveTo(472, 105); x.lineTo(580, 105); x.stroke();
+    if (night) {
+      x.fillStyle = "#e8e4c8";
+      x.beginPath(); x.arc(550, 80, 12, 0, Math.PI * 2); x.fill();
+      x.fillStyle = "#8fa3c8";
+      for (const [sx, sy, r] of [[495, 70, 2], [510, 135, 1.6], [560, 140, 1.8], [575, 68, 1.5]]) { x.beginPath(); x.arc(sx, sy, r, 0, Math.PI * 2); x.fill(); }
+    } else {
+      x.fillStyle = "#7ea6d8";
+      x.beginPath(); x.arc(550, 82, 13, 0, Math.PI * 2); x.fill();
+      x.fillStyle = "#c9d9ee";
+      x.fillRect(480, 120, 40, 8); x.fillRect(544, 132, 30, 7);
+    }
+    // 壁の記録（ピン留めした記録カード）
+    for (let i = 0; i < Math.min(4, st.lvl); i++) {
+      const px0 = 64 + i * 46, py0 = 70;
+      x.fillStyle = i % 2 ? "#2a3a54" : "#2e3450";
+      x.fillRect(px0, py0, 34, 46);
+      x.strokeStyle = "#475b83"; x.lineWidth = 2; x.strokeRect(px0, py0, 34, 46);
+      x.fillStyle = "#8fa3c8";
+      x.fillRect(px0 + 5, py0 + 8, 24, 3); x.fillRect(px0 + 5, py0 + 16, 24, 3); x.fillRect(px0 + 5, py0 + 24, 16, 3);
+      x.fillStyle = "#e8c15a"; x.beginPath(); x.arc(px0 + 17, py0 - 3, 3, 0, Math.PI * 2); x.fill();
+    }
+    if (st.lvl >= 4) {
+      x.fillStyle = "#f0c860"; x.fillRect(60, 56, 200, 6);
+      for (let i = 0; i < 5; i++) {
+        x.save(); x.translate(280 + i * 36, 110); x.rotate(Math.PI / 4);
+        x.fillStyle = "#f0c860"; x.fillRect(-6, -6, 12, 12); x.restore();
+      }
+    }
+    // いす・人（背面・モニター側からリムライト）
+    x.fillStyle = "#26324e"; x.fillRect(196, 192, 66, 100);
+    x.strokeStyle = "#3a4a70"; x.lineWidth = 2; x.strokeRect(196, 192, 66, 100);
+    x.fillStyle = "#1d2637";
+    x.beginPath(); x.arc(232, 186, 22, 0, Math.PI * 2); x.fill();
+    x.fillRect(212, 204, 40, 74);
+    x.strokeStyle = "#26324e"; x.lineWidth = 8;
+    x.beginPath(); x.arc(232, 180, 27, Math.PI, Math.PI * 2); x.stroke();
+    x.strokeStyle = "rgba(126,200,169,.5)"; x.lineWidth = 3;
+    x.beginPath(); x.arc(232, 186, 22, -Math.PI * 0.55, Math.PI * 0.45); x.stroke();
+    x.beginPath(); x.moveTo(250, 206); x.lineTo(250, 274); x.stroke();
+    x.fillStyle = "rgba(13,17,25,.5)"; x.fillRect(206, 274, 64, 8);
+    // 机（天板・前板・脚・影）
+    x.fillStyle = "#34425f"; x.fillRect(300, 250, 286, 12);
+    x.fillStyle = "#232e49"; x.fillRect(300, 262, 286, 10);
+    x.fillStyle = "#2b3854"; x.fillRect(312, 272, 12, 64); x.fillRect(560, 272, 12, 64);
+    x.fillStyle = "rgba(8,10,16,.55)"; x.fillRect(306, 336, 274, 10);
+    // ランプ
+    if (night && st.dev >= 1) {
+      const g = x.createRadialGradient(318, 214, 3, 318, 214, 46);
+      g.addColorStop(0, "rgba(232,193,90,.30)"); g.addColorStop(1, "rgba(232,193,90,0)");
+      x.fillStyle = g; x.beginPath(); x.arc(318, 214, 46, 0, Math.PI * 2); x.fill();
+      x.strokeStyle = "#3d4b6b"; x.lineWidth = 4;
+      x.beginPath(); x.moveTo(318, 214); x.lineTo(318, 252); x.stroke();
+      x.fillStyle = "#3d4b6b"; x.fillRect(308, 204, 20, 10);
+    }
+    // 画面グロー
+    const glow = (gx, gy, gr, alpha) => {
+      const g = x.createRadialGradient(gx, gy, 4, gx, gy, gr);
+      g.addColorStop(0, `rgba(126,200,169,${(alpha * dim).toFixed(3)})`);
+      g.addColorStop(1, "rgba(126,200,169,0)");
+      x.fillStyle = g; x.beginPath(); x.arc(gx, gy, gr, 0, Math.PI * 2); x.fill();
+    };
+    const scr = c => { x.globalAlpha = dim; x.fillStyle = c; };
+    if (st.dev <= 0) {
+      glow(511, 242, 44, 0.25);
+      x.fillStyle = "#0d1119"; x.fillRect(500, 232, 22, 20);
+      scr("#7ec8a9"); x.fillRect(502, 234, 18, 15);
+    } else if (st.dev === 1) {
+      glow(463, 224, 62, 0.3);
+      x.fillStyle = "#0d1119"; x.fillRect(424, 204, 78, 40);
+      scr("#7ec8a9"); x.fillRect(428, 208, 70, 32);
+      x.globalAlpha = 1; x.fillStyle = "#0d1119"; x.fillRect(418, 244, 90, 8);
+      x.fillStyle = "#0d1119"; x.fillRect(508, 236, 20, 16);
+      scr("#7ec8a9"); x.fillRect(510, 238, 16, 11);
+    } else {
+      glow(440, 196, 88, 0.34);
+      x.fillStyle = "#0d1119"; x.fillRect(372, 158, 118, 72);
+      scr("#7ec8a9"); x.fillRect(376, 162, 110, 64);
+      x.globalAlpha = 1; x.fillStyle = "#2b3854";
+      x.fillRect(424, 230, 16, 16); x.fillRect(404, 246, 56, 6);
+      x.fillStyle = "#7ec8a9"; x.fillRect(532, 152, 8, 8);
+      if (st.dev >= 3) {
+        x.fillStyle = "#0d1119"; x.fillRect(494, 164, 86, 62);
+        scr("#a9e3cb"); x.fillRect(498, 168, 78, 54);
+        x.globalAlpha = 1; x.fillStyle = "#2b3854";
+        x.fillRect(528, 226, 14, 18);
+        x.strokeStyle = "#4e6087"; x.lineWidth = 5;
+        x.beginPath(); x.moveTo(560, 252); x.lineTo(560, 136); x.lineTo(520, 126); x.stroke();
+        x.fillStyle = "#3a4a70"; x.beginPath(); x.arc(516, 126, 10, 0, Math.PI * 2); x.fill();
+      }
+    }
+    // 机への照り返し / 床の光だまり
+    const refl = st.dev >= 2 ? 1 : 0.55;
+    x.fillStyle = `rgba(126,200,169,${(0.10 * dim * refl).toFixed(3)})`;
+    x.fillRect(360, 250, 240, 10);
+    const fg = x.createRadialGradient(450, 322, 6, 450, 322, 130);
+    fg.addColorStop(0, `rgba(126,200,169,${(0.09 * dim * refl).toFixed(3)})`);
+    fg.addColorStop(1, "rgba(126,200,169,0)");
+    x.fillStyle = fg; x.beginPath(); x.ellipse(450, 322, 135, 26, 0, 0, Math.PI * 2); x.fill();
+    x.globalAlpha = 1;
   }
   function bar(k, label, v, cls) {
     return `<div class="statrow"><span class="k">${label}</span><span class="bar"><i class="${cls || ""}" style="width:${Math.round(v)}%"></i></span><span class="v">${Math.round(v)}</span></div>`;
@@ -346,6 +550,7 @@ window.HK = window.HK || {};
   /* ---------- エンディング ---------- */
   function showEnding() {
     if (!S || !S.title) return;
+    LS.remove(SAVE_KEY);
     const r = recordFromState(S);
     currentShownRecord = r;
     displayEnding(r);
@@ -665,7 +870,7 @@ window.HK = window.HK || {};
       paused = !paused;
       $("btnPause").classList.toggle("on", paused);
       $("btnPause").textContent = paused ? "▶ 再開" : "⏸ 一時停止";
-      if (paused) clearTimeout(timer);
+      if (paused) { clearTimeout(timer); saveLife(); }
       else schedule();
     });
     $("btnDownload").addEventListener("click", () => {
@@ -719,6 +924,9 @@ window.HK = window.HK || {};
 
   function init() {
     bindStart(); bindNav(); bindControls(); bindLive(); fillAbout();
+    window.addEventListener("pagehide", saveLife);
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") saveLife(); });
+    refreshResumeBtn();
     show("start");
   }
   document.addEventListener("DOMContentLoaded", init);

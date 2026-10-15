@@ -9,17 +9,15 @@ window.HK = window.HK || {};
   const DAY = 86400000;
 
   /* ---------- RNG ---------- */
-  function mulberry32(a) {
-    return function () {
-      a |= 0; a = (a + 0x6D2B79F5) | 0;
+  class RNG {
+    constructor(seed) { this._a = seed | 0; }   // _a = 現在の内部状態（保存/復元に使う）
+    next() {
+      let a = (this._a + 0x6D2B79F5) | 0;
+      this._a = a;
       let t = Math.imul(a ^ (a >>> 15), 1 | a);
       t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
       return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-  }
-  class RNG {
-    constructor(seed) { this.f = mulberry32(seed); }
-    next() { return this.f(); }
+    }
     range(a, b) { return a + this.next() * (b - a); }
     int(a, b) { return Math.floor(this.range(a, b + 1)); }
     pick(arr) { return arr[Math.floor(this.next() * arr.length)]; }

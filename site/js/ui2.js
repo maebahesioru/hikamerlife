@@ -29,6 +29,7 @@ window.HK = window.HK || {};
   let S = null;
   let timer = null;
   let paused = false;
+  let pendingLife = false;
   let currentShownRecord = null;
   let speed = LS.get(OPT_KEY, { speed: 2 }).speed || 2;
   let auto = LS.get(OPT_KEY, { auto: false }).auto || false;
@@ -111,21 +112,61 @@ window.HK = window.HK || {};
       if (realAgeSel.value !== "none") opts.realAge = parseInt(realAgeSel.value, 10);
       if (pathSel.value !== "random") opts.path = pathSel.value;
       if (triggerSel.value !== "random") opts.trigger = triggerSel.value;
-      startGame(opts);
+      const btn = $("btnStart");
+      btn.disabled = true;
+      btn.textContent = "くじを引いています…";
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.textContent = "くじを引いて参入する";
+        startGame(opts);
+      }, 900);
     });
     $("btnResume").addEventListener("click", resumeGame);
+    $("btnEnterLife").addEventListener("click", () => {
+      if (!S) return;
+      pendingLife = false;
+      $("lifeTitleSub").textContent = `第${S.playNo || 1}回の界隈歴`;
+      renderAll();
+      show("life");
+      schedule(300);
+    });
   }
 
   function startGame(opts) {
     S = HK.engine2.newGame(opts);
     window.__S = S;
     S.playNo = LS.get("hk4m2.plays", 0) + 1;
-    $("lifeTitleSub").textContent = `第${S.playNo}回の界隈歴`;
     LS.set("hk4m2.plays", S.playNo);
     hideModal();
-    renderAll();
-    show("life");
-    schedule(300);
+    pendingLife = true;
+    fillCertScreen();
+    show("cert");
+  }
+
+  /* ---------- 参入証セレモニー ---------- */
+  function fillCertScreen() {
+    const p = D().paths.find(x => x.id === S.pathId) || { label: "—" };
+    const t = D().triggers.find(x => x.id === S.triggerId) || { label: "—" };
+    $("certScreenNo").textContent = `No. ${S.era.year}-${String(S.seed % 1000000).padStart(6, "0")}`;
+    $("certScreenHandle").textContent = S.handle;
+    $("certScreenName").textContent = `（${S.name}）`;
+    const q = S.qualities;
+    const dotRow = (label, v) => {
+      const n = Math.max(0, Math.min(5, Math.round(v / 20)));
+      let d = "";
+      for (let i = 0; i < 5; i++) d += `<i class="${i < n ? "on" : ""}"></i>`;
+      return `<div class="certrow"><span>${label}</span><b class="dots">${d}</b></div>`;
+    };
+    $("certScreenFields").innerHTML =
+      `<div class="certrow"><span>参入</span><b>${S.era.year}年（${esc(S.era.name)}）・${S.startAge}歳</b></div>` +
+      `<div class="certrow"><span>経緯</span><b>${esc(p.label)}</b></div>` +
+      `<div class="certrow"><span>きっかけ</span><b>${esc(t.label)}</b></div>` +
+      `<div class="certrow"><span>出身</span><b>${esc(S.pref)}</b></div>` +
+      `<div class="certrow"><span>家</span><b>${esc(S.family.label)}</b></div>` +
+      `<div class="certrow"><span>ネット環境</span><b>${esc(S.net.label)}</b></div>` +
+      dotRow("画力", q.draw) + dotRow("音感", q.beat) + dotRow("文才", q.word) +
+      dotRow("社交", q.social) + dotRow("根性", q.grit) + dotRow("運", q.luck);
+    $("certScreenStory").textContent = S.log[0] ? S.log[0].text : "";
   }
 
   /* ---------- 途中保存 / つづきから ---------- */

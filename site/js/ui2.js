@@ -510,7 +510,7 @@ window.HK = window.HK || {};
   }
   function renderFocus() {
     const el = $("focusBox");
-    el.innerHTML = D().focuses.map(f =>
+    el.innerHTML = D().focuses.filter(f => !f.era || (S.era.year >= f.era[0] && S.era.year <= f.era[1])).map(f =>
       `<button class="focuschip ${S.focus === f.id ? "on" : ""}" data-focus="${f.id}" title="${f.desc}">${f.label}</button>`
     ).join("");
     el.querySelectorAll(".focuschip").forEach(b => {

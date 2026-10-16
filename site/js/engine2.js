@@ -120,7 +120,8 @@ window.HK = window.HK || {};
       let nm = makeHandle(rng), guard = 0;
       while (used.has(nm) && guard++ < 30) nm = makeHandle(rng);
       used.add(nm);
-      const arc = rng.pick(D().compArcs);
+      const arcPool = D().compArcs.filter(a => !a.era || (era.year >= a.era[0] && era.year <= a.era[1]));
+      const arc = rng.pick(arcPool.length ? arcPool : D().compArcs);
       S.companions.push({ name: nm, arc: arc.id, lines: arc.lines, stage: 0, next: rng.int(2, 20), followers: rng.int(3, 100) });
     }
     if (S.mode === "life") {

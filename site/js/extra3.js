@@ -43,9 +43,9 @@ window.HK = window.HK || {};
     { id: "z_politics2", w: 3, d: [90, 2000], cond: S => S.focus === "politics", t: "時事ネタのポストが思わぬ伸び方をした。政治は、一番燃えやすい燃料だ。", fx: { fame: 120, edge: 2, fameRisk: 2 } },
     { id: "z_politics3", w: 2, d: [120, 2000], cond: S => S.focus === "politics" && S.hk.edge >= 30, t: "政治の話が過熱して、相互が一人減った。こういう別れ方もある。", fx: { rel: -2, mental: -1 } },
     /* --- 重点シナジー: アルカイダ --- */
-    { id: "z_alq1", w: 4, d: [40, 2000], cond: S => S.focus === "alqaeda", t: "アルカイダの投稿がまたTLを汚した。あなたが今日それを投げた側だ。", fx: { edge: 3, banRisk: 4, happy: 1, zukan: ["c2"] } },
-    { id: "z_alq2", w: 3, d: [60, 2000], cond: S => S.focus === "alqaeda", t: "「あいつは線を越えている」と、TLの空気が変わり始めた。", fx: { mental: -2, edge: 2 } },
-    { id: "z_alq3", w: 2, d: [90, 2000], cond: S => S.focus === "alqaeda" && S.hk.banRisk >= 50, t: "アルカイダ帝国の隆盛と、その代償。通報ボタンがあなたを見ている気がする。", fx: { mental: -2, banRisk: 4 } },
+    { id: "z_alq1", w: 4, d: [40, 2000], era: [2025, 2026], cond: S => S.focus === "alqaeda", t: "アルカイダの投稿がまたTLを汚した。あなたが今日それを投げた側だ。", fx: { edge: 3, banRisk: 4, happy: 1, zukan: ["c2"] } },
+    { id: "z_alq2", w: 3, d: [60, 2000], era: [2025, 2026], cond: S => S.focus === "alqaeda", t: "「あいつは線を越えている」と、TLの空気が変わり始めた。", fx: { mental: -2, edge: 2 } },
+    { id: "z_alq3", w: 2, d: [90, 2000], era: [2025, 2026], cond: S => S.focus === "alqaeda" && S.hk.banRisk >= 50, t: "アルカイダ帝国の隆盛と、その代償。通報ボタンがあなたを見ている気がする。", fx: { mental: -2, banRisk: 4 } },
     /* --- 重点シナジー: 開発叩き --- */
     { id: "z_dev1", w: 4, d: [40, 2000], cond: S => S.focus === "factdev", t: "開発光の古い配信アーカイブから、またネタが発掘された。あなたは経緯を丁寧にまとめた。", fx: { dev: 3, know: 1, fame: 60 } },
     { id: "z_dev2", w: 3, d: [80, 2000], cond: S => S.focus === "factdev", t: "ファクトチェック投稿が引用され、「丁寧な人」として界隈の信頼を少し得た。", fx: { fame: 100, goroku: 1, happy: 2 } },
@@ -109,7 +109,7 @@ window.HK = window.HK || {};
         { label: "意見を書く", t: "書いた。賛否が両方届いた。TLの熱を、直接指で触った気がした。", fx: { know: 2, edge: 2, fame: 100, fameRisk: 3 } },
         { label: "黙る", t: "界隈の平和は、書かない勇気でできている。", fx: { mental: 1 } }
       ] },
-    { id: "yj_alq_go", w: 3, d: [80, 2000], once: true, prompt: "アルカイダの一派が、あなたを仲間に誘っている。ノリか、本気か。",
+    { id: "yj_alq_go", w: 3, d: [80, 2000], era: [2025, 2026], once: true, prompt: "アルカイダの一派が、あなたを仲間に誘っている。ノリか、本気か。",
       choices: [
         { label: "一回だけ乗る", t: "乗った。TLが悲鳴を上げ、あなたは少し笑った。凍結リスクが跳ね上がった。", fx: { edge: 6, banRisk: 14, happy: 3, flags: ["alqaeda"], zukan: ["c2"] } },
         { label: "距離を置く", t: "「お前らは見てるだけにするわ」。賢明、という言葉が似合う選択だった。", fx: { mental: 2, know: 1 } }
@@ -256,7 +256,7 @@ window.HK = window.HK || {};
   /* ================= 重点 追加 ================= */
   HK.DATA2.focuses.push(
     { id: "politics", label: "政治・時事", desc: "TLの火種を、正面から見に行く。", followK: 0.95, skillK: 0.8, riskK: 1.5, nareaiK: 1.0 },
-    { id: "alqaeda", label: "アルカイダ", desc: "不快画像でTLを占拠する。凍結リスク最大。", followK: 1.1, skillK: 0.7, riskK: 2.2, nareaiK: 0.9 },
+    { id: "alqaeda", label: "アルカイダ", desc: "不快画像でTLを占拠する。凍結リスク最大。", era: [2025, 2026], followK: 1.1, skillK: 0.7, riskK: 2.2, nareaiK: 0.9 },
     { id: "factdev", label: "開発叩き", desc: "ファクトを掘り、まとめ、発信する。", followK: 1.0, skillK: 0.9, riskK: 1.3, nareaiK: 0.8 },
     { id: "toolwork", label: "道具づくり", desc: "bot・サイト・ツールを作る影の実力者。", followK: 0.9, skillK: 1.8, riskK: 0.9, nareaiK: 0.7 },
     { id: "sales", label: "拡散営業", desc: "波に乗る技術で数字を伸ばす。", followK: 1.35, skillK: 0.8, riskK: 1.1, nareaiK: 1.3 },

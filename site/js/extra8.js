@@ -101,7 +101,7 @@ HK.EVENTS2.push(
   /* --- 危険ライン --- */
   { id: "x8_nori_burn", w: 3, d: [230, 2000], once: true, cond: S => S.flags.includes("nori_open"), t: "「ノリ違」の引用が、一週間経っても止まない。TLが、あなたの名前ごと祭りを続けている。", fx: { end: "nori_chigai" } },
   { id: "x8_leak", w: 1, d: [150, 2000], once: true, cond: S => S.flags.includes("badmouth"), t: "あのDMのスクショが、TLに流れた。開示請求が届くのは、時間の問題だ。", fx: { mental: -12, end: "doxxing" } },
-  { id: "x8_nuke", w: 1, d: [150, 2000], t: "界隈の「核」の噂。押すなよ、絶対に押すなよ——誰も押しはしないが、全員が見ている。", fx: { happy: -1, know: 1 } },
+  { id: "x8_nuke", w: 1, d: [150, 2000], era: [2025, 2026], t: "界隈の「核」の噂。押すなよ、絶対に押すなよ——誰も押しはしないが、全員が見ている。", fx: { happy: -1, know: 1 } },
   { id: "x8_alq_citizen", w: 2, d: [30, 2000], cond: S => S.flags.includes("alq_citizen"), t: "帝国の住民名簿を更新した。名前の横に、階級が付いた。階級は、自分で決められない。", fx: { edge: 2, know: 1 } },
 
   /* --- スターの子 --- */
@@ -281,8 +281,8 @@ D.zukan.push(
       S.hk.fameRisk = HK.engine2.clamp(S.hk.fameRisk + 8, 0, 100);
       S.flags.push("star_child");
     }
-    /* 超激レア: ヒカマーズアルカイダ帝国に生まれる（1/500） */
-    if (rng.chance(0.002)) {
+    /* 超激レア: ヒカマーズアルカイダ帝国に生まれる（1/500・2025以降のみ） */
+    if (S.era.year >= 2025 && rng.chance(0.002)) {
       S.pref = "ヒカマーズアルカイダ帝国";
       S.flags.push("alq_citizen");
       S.hk.banRisk = HK.engine2.clamp(S.hk.banRisk + 4, 0, 100);
@@ -294,7 +294,7 @@ D.zukan.push(
     S.catName = null;
 
     /* 生まれのくじ（組み合わせ数） */
-    const counts = [D.prefs.length + 1, X8.origins.length, X8.archetypes.length,
+    const counts = [D.prefs.length + (S.era.year >= 2025 ? 1 : 0), X8.origins.length, X8.archetypes.length,
       D.paths.length, D.triggers.length, D.families.length, D.nets.length];
     S.comboInv = counts.reduce((a, b) => a * b, 1);
     return S;

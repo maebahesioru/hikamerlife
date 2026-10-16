@@ -112,6 +112,7 @@ window.HK = window.HK || {};
       if (realAgeSel.value !== "none") opts.realAge = parseInt(realAgeSel.value, 10);
       if (pathSel.value !== "random") opts.path = pathSel.value;
       if (triggerSel.value !== "random") opts.trigger = triggerSel.value;
+      if ($("selMode") && $("selMode").value === "life") opts.mode = "life";
       const btn = $("btnStart");
       btn.disabled = true;
       btn.textContent = "くじを引いています…";
@@ -147,6 +148,8 @@ window.HK = window.HK || {};
   function fillCertScreen() {
     const p = D().paths.find(x => x.id === S.pathId) || { label: "—" };
     const t = D().triggers.find(x => x.id === S.triggerId) || { label: "—" };
+    const ogL = (HK.EXTRA8 && HK.EXTRA8.origins ? (HK.EXTRA8.origins.find(o => o.id === S.originId) || {}).label : null) || "—";
+    const arL = (HK.EXTRA8 && HK.EXTRA8.archetypes ? (HK.EXTRA8.archetypes.find(a => a.id === S.archId) || {}).label : null) || "—";
     $("certScreenNo").textContent = `No. ${S.era.year}-${String(S.seed % 1000000).padStart(6, "0")}`;
     $("certScreenHandle").textContent = S.handle;
     $("certScreenName").textContent = `（${S.name}）`;
@@ -166,12 +169,15 @@ window.HK = window.HK || {};
       return `<div class="certrow"><span>${label}</span><b class="dots">${d}</b></div>`;
     };
     $("certScreenFields").innerHTML =
-      `<div class="certrow"><span>参入</span><b>${S.era.year}年（${esc(S.era.name)}）・${S.startAge}歳</b></div>` +
+      `<div class="certrow"><span>参入</span><b>${S.mode === "life" ? `0歳から（${S.era.year}年生まれ）` : `${S.era.year}年（${esc(S.era.name)}）・${S.startAge}歳`}</b></div>` +
       `<div class="certrow"><span>経緯</span><b>${esc(p.label)}</b></div>` +
       `<div class="certrow"><span>きっかけ</span><b>${esc(t.label)}</b></div>` +
+      `<div class="certrow"><span>界隈デビュー元</span><b>${esc(ogL)}</b></div>` +
+      `<div class="certrow"><span>タイプ</span><b>${esc(arL)}</b></div>` +
       `<div class="certrow"><span>出身</span><b>${esc(S.pref)}</b></div>` +
       `<div class="certrow"><span>家</span><b>${esc(S.family.label)}</b></div>` +
       `<div class="certrow"><span>ネット環境</span><b>${esc(S.net.label)}</b></div>` +
+      `<div class="certrow"><span>生まれのくじ</span><b>1/${(S.comboInv || 0).toLocaleString("ja-JP")}</b></div>` +
       dotRow("行動力", q.action) + dotRow("知力", q.intel) + dotRow("影響力", q.influence) +
       dotRow("持続力", q.stamina) + dotRow("メンタル", q.mental) + dotRow("運", q.luck);
     // 初投稿ツイートカード（実ツイートの型: 「新参ヒカマーの◯◯ですｶﾄﾛ　よろ🈵」）
@@ -189,6 +195,9 @@ window.HK = window.HK || {};
         <div class="dim small" style="margin-top:6px">これが、あなたの界隈での初投稿になった。</div>`;
     } else {
       $("certScreenStory").textContent = S.log[0] ? S.log[0].text : "";
+    }
+    if (S.mode === "life") {
+      $("certScreenStory").insertAdjacentHTML("afterbegin", `<div class="dim small" style="margin-bottom:6px">この人生は<b>0歳から</b>始まる。ネットと出会うのは、13歳。それまでは、ただの生活。</div>`);
     }
   }
 

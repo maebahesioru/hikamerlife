@@ -35,7 +35,7 @@ window.HK = window.HK || {};
   function renderText(t, S) {
     return t.replaceAll("{h}", S.handle).replaceAll("{n}", S.name)
       .replaceAll("{era}", String(S.era.year)).replaceAll("{day}", String(S.dayNum))
-      .replaceAll("{pref}", S.pref);
+      .replaceAll("{pref}", S.pref).replaceAll("{cat}", S.catName || "猫");
   }
 
   /* ---------- 参入くじ ---------- */
@@ -95,6 +95,9 @@ window.HK = window.HK || {};
       _zukan: {},
       _bought: {}
     };
+    // 生きる範囲（界隈歴 / 0歳から）
+    if (opts.mode === "life") { S.mode = "life"; S.child = true; S.entryAge = 13; S.startAge = 0; S.age = 0; }
+    else S.mode = "kaimai";
     // 参入の経緯・きっかけの残りを適用
     if (path.fx.heat) S.heat = clamp(S.heat + path.fx.heat, 0, 100);
     if (path.fx.edge) S.hk.edge = clamp(S.hk.edge + path.fx.edge, 0, 100);
@@ -120,11 +123,15 @@ window.HK = window.HK || {};
       const arc = rng.pick(D().compArcs);
       S.companions.push({ name: nm, arc: arc.id, lines: arc.lines, stage: 0, next: rng.int(2, 20), followers: rng.int(3, 100) });
     }
-    pushLog(S, "birth", `${era.year}年（${era.name}）、${fmtDate(startDate)}。${pref}、${family.label}、${net.label}。${startAge}歳のあなたは「${handle}」として、#新参ヒカマー で挨拶した。参入のきっかけは、${trigger.label}。`);
-    if (path.id === "reinc") pushLog(S, "debut", "この垢は転生垢だ。前の名前を覚えている人は、もうほとんどいない。");
-    if (path.id === "transfer") pushLog(S, "debut", "元いた界隈のノリが、まだ少し残っている。この海の言葉を、ひとつずつ覚え直す。");
-    pushLog(S, "debut", "数分後、通知がついた。「はじめまして、そ決」。界隈の扉が、静かに開いた。");
-    unlockZukan(S, "c6");
+    if (S.mode === "life") {
+      pushLog(S, "birth", `${era.year}年、${pref}。${family.label}の家に、あなたは生まれた。まだ、ネットの「ネ」の字も知らない。`);
+    } else {
+      pushLog(S, "birth", `${era.year}年（${era.name}）、${fmtDate(startDate)}。${pref}、${family.label}、${net.label}。${startAge}歳のあなたは「${handle}」として、#新参ヒカマー で挨拶した。参入のきっかけは、${trigger.label}。`);
+      if (path.id === "reinc") pushLog(S, "debut", "この垢は転生垢だ。前の名前を覚えている人は、もうほとんどいない。");
+      if (path.id === "transfer") pushLog(S, "debut", "元いた界隈のノリが、まだ少し残っている。この海の言葉を、ひとつずつ覚え直す。");
+      pushLog(S, "debut", "数分後、通知がついた。「はじめまして、そ決」。界隈の扉が、静かに開いた。");
+      unlockZukan(S, "c6");
+    }
     unlockZukan(S, eraId(era.year));
     return S;
   }
@@ -225,6 +232,8 @@ window.HK = window.HK || {};
     if (fx.heat) S.heat = clamp(S.heat + fx.heat, 0, 100);
     if (fx.flags) fx.flags.forEach(f => { if (!S.flags.includes(f)) S.flags.push(f); });
     if (fx.zukan) fx.zukan.forEach(id => unlockZukan(S, id));
+    if (fx.fac !== undefined) S.fac = fx.fac === "auto" ? ["masuma", "ozeu", "neonazi", "ss"][Math.floor(S.rng.next() * 4)] : (fx.fac || null);
+    if (fx.catName !== undefined) S.catName = fx.catName;
     if (fx.viral) S._virals = (S._virals || 0) + 1;
     if (fx.end) endGame(S, fx.end);
     hk.peakFollowers = Math.max(hk.peakFollowers, hk.followers);
@@ -289,6 +298,7 @@ window.HK = window.HK || {};
     if (S.dayNum % 30 === 0) {
       if (S.age >= 16 && S.flags.includes("baito")) S.money += 30000;
       else if (S.age >= 18) S.money += 120000;
+      if (S.flags.includes("afi")) S.money += 40000;
       S.money -= 15000 + S.rng.int(0, 20000);
     }
   }
@@ -384,7 +394,16 @@ window.HK = window.HK || {};
       immigrate: "別の界隈の空気は、最初だけ匂いが違った。すぐに慣れる。ネットはどこも同じ海だ。",
       ghost: "垢は残した。フォローも残した。ただ、話さなくなった。たまに、いいねだけがつく。",
       rest: "「しばらくお休みします」。その「しばらく」の時計は、まだ動いている。",
-      burnout: "燃え尽きたのは、ある朝だった。理由はなく、ただ、火がなかった。薪はあったのに。"
+      burnout: "燃え尽きたのは、ある朝だった。理由はなく、ただ、火がなかった。薪はあったのに。",
+      quake: "夜中、大きな地震が来た。界隈は動き続けていて、あなただけが、動けなくなった。",
+      bear: "クマの目撃情報は、出ていたらしい。あなたの最後の投稿は、山の写真だった。",
+      doxxing: "開示され、静かに消えた。ネットの履歴は、現実の住所より速く人に届く。",
+      nori_chigai: "「ノリ違」——たった三文字の烙印で、あなたの言葉は誰にも届かなくなった。",
+      afiliend: "収益は増え続けた。界隈の友達は、もう誰もDMを返さない。",
+      face: "顔が晒された。界隈歴は、そこで強制的に終わった。",
+      ban: "凍結の嵐が吹いた日、あなたの垢もまとめて持って行かれた。抵抗の手段は、なかった。",
+      tsuiwaste: "気づけば、TLが人生そのものになっていた。あなたの一日は、通知欄から始まる。",
+      lawsuit: "法廷は、句読点まで読み込む場所だった。ネットの言葉が、紙になって返ってきた。"
     }[type] || "あなたの界隈歴は、ここで一区切りついた。";
     pushLog(S, "ending", endLine);
   }
@@ -456,6 +475,18 @@ window.HK = window.HK || {};
     }
   }
 
+  /* ---------- 0歳からの参入（13歳で界隈デビュー） ---------- */
+  function entryLife(S) {
+    const p = D().paths.find(x => x.id === S.pathId) || { label: "—" };
+    const t = D().triggers.find(x => x.id === S.triggerId) || { label: "—" };
+    pushLog(S, "birth", `${fmtDate(S.date)}。${S.entryAge}歳になったあなたは「${S.handle}」として、#新参ヒカマー で挨拶した。参入のきっかけは、${t.label}。`);
+    if (p.id === "reinc") pushLog(S, "debut", "この垢は転生垢だ。前の名前を覚えている人は、もうほとんどいない。");
+    if (p.id === "transfer") pushLog(S, "debut", "元いた界隈のノリが、まだ少し残っている。この海の言葉を、ひとつずつ覚え直す。");
+    pushLog(S, "debut", "数分後、通知がついた。「はじめまして、そ決」。界隈の扉が、静かに開いた。");
+    S.heat = clamp(S.heat + 10, 0, 100);
+    unlockZukan(S, "c6");
+  }
+
   /* ---------- 1日進める ---------- */
   function step(S) {
     if (S.ended) return { status: "ended" };
@@ -463,7 +494,27 @@ window.HK = window.HK || {};
 
     S.dayNum++;
     S.date = new Date(S.startDate.getTime() + S.dayNum * DAY);
-    S.age = S.startAge + Math.floor(S.dayNum / 365);
+
+    // 0歳からの人生：幼少期フェーズ（220日かけて13歳になる）
+    if (S.mode === "life" && S.child) {
+      S.age = Math.min(S.entryAge, Math.floor(S.dayNum / 220 * S.entryAge));
+      if (HK.CHILD_EVENTS && HK.CHILD_EVENTS.length && S.rng.chance(0.5)) {
+        const pool = HK.CHILD_EVENTS.filter(e => eligible(S, e));
+        if (pool.length) {
+          const ev = S.rng.wpick(pool, e => e.w || 1);
+          S._lastEv[ev.id] = S.dayNum;
+          if (ev.once) S._once[ev.id] = true;
+          const text = renderText(ev.t, S);
+          applyFx(S, ev.fx);
+          pushLog(S, "child", text);
+        }
+      }
+      if (S.dayNum >= 220) { S.child = false; S.age = S.entryAge; entryLife(S); }
+      S.days.push({ day: S.dayNum, happy: S.stats.happy, followers: 0 });
+      return { status: "ok" };
+    }
+
+    S.age = S.mode === "life" ? S.entryAge + Math.floor((S.dayNum - 220) / 365) : S.startAge + Math.floor(S.dayNum / 365);
 
     dailyUpdate(S);
 

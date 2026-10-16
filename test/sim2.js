@@ -11,6 +11,7 @@ require("../site/js/extra5.js");
 require("../site/js/extra6.js");
 require("../site/js/extra7.js");
 require("../site/js/engine2.js");
+require("../site/js/extra8.js");
 
 const N = parseInt(process.argv[2] || "300", 10);
 const ST = process.argv[3] || "random";

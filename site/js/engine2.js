@@ -155,8 +155,13 @@ window.HK = window.HK || {};
       case "mani": return rng.chance(0.5) ? noun + "_mani" : noun + "mani";
       case "mani_jp": return noun + (rng.chance(0.5) ? "マニ" : "まに");
       case "mania_jp": return noun + "マニア";
-      case "kin": return rng.pick([noun + "キン", cap(romaji) + "kin", "キン" + noun]);
+      case "kin": return rng.pick([noun + "キン", noun + "きん", cap(romaji) + "kin", "キン" + noun]);
       case "tv": return rng.pick([noun + "TV", noun + "キンTV", cap(romaji) + "KinTV"]);
+      case "phrase": {
+        const ph = D().handlePhrases || [];
+        return ph.length ? rng.pick(ph) + "_mania" : noun + mod + "_mania";
+      }
+      case "double": return noun + "_mania_mania";
       case "bot": return rng.pick([noun + "bot", noun + "名言bot", noun + "_bot"]);
       case "dotted": {
         const K = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワ";

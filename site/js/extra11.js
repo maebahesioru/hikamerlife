@@ -93,4 +93,14 @@ window.HK = window.HK || {};
   /* ---- パターン追加: フレーズmania / 二重mania ---- */
   D.handlePatterns.push({ id: "phrase", w: 7 });
   D.handlePatterns.push({ id: "double", w: 3 });
+  /* ---- 図鑑追加（凍結 / ザビャン邸）---- */
+  D.zukan.push(
+    { id: "n41", cat: "文化", name: "凍結", desc: "垢が一晩で消えること。原因は誰にも分からない。この界隈で、いちばん静かな恐怖。" },
+    { id: "p11", cat: "場所", name: "ザビャン邸", desc: "界隈の有力者の館。招かれるのは、よほどの縁か、よほどの物好きか。記念バッジは名刺代わりになる。" }
+  );
+
+  /* ---- 2026年イベント: ザビャン戦争の記憶（フレーズ解禁用）---- */
+  HK.EVENTS2.push(
+    { id: "x11_zabyan_war", w: 1, d: [60, 2000], once: true, era: [2026, 2026], t: "ザビャン戦争の傷跡が、まだTLの端に残っている。名前を出す者と、出さない者がいる。", fx: { know: 1, zukan: ["e4"] } }
+  );
 })();

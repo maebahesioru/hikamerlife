@@ -100,6 +100,7 @@
       <div class="certstory" id="certScreenStory"></div>
       <p class="dim small" style="margin-top:10px">1日ずつ進んでいきます。途中で閉じても、同じブラウザなら「つづきから」で再開できます。界隈には、いつか終わりが来ます。</p>
     </div>
+    <button class="btn sub" id="btnAlloc">才覚ガチャを振り分ける（任意）</button>
     <button class="btn" id="btnEnterLife">この界隈歴を生きる</button>
   </div>
 </section>
@@ -333,6 +334,21 @@
 </div>
 
 <!-- ================= アルバム ================= -->
+<div id="allocOv" hidden>
+  <div class="allocwrap">
+    <h3 style="margin:0 0 4px">才覚を振り分ける</h3>
+    <div class="dim small">くじで出た6つの数字を、好きな能力へ。あとから引く人生ほど、才覚は効く。</div>
+    <div id="allocChips" class="allocchips"></div>
+    <div id="allocSlots"></div>
+    <div class="deathbtns" style="margin-top:14px">
+      <button class="btn sub" id="btnAllocReroll">数字を引き直す</button>
+      <button class="btn sub" id="btnAllocAuto">おまかせ</button>
+      <button class="btn" id="btnAllocOk" disabled>この配分で決定</button>
+      <button class="btn sub" id="btnAllocClose">やめる</button>
+    </div>
+  </div>
+</div>
+
 <div id="albumOv" hidden>
   <div class="albumhead">
     <b id="albumTitle">アルバム</b>
@@ -361,10 +377,11 @@
 <script src="js/extra5.js?v=313"></script>
 <script src="js/extra6.js?v=313"></script>
 <script src="js/extra7.js?v=318"></script>
-<script src="js/engine2.js?v=318"></script>
+<script src="js/engine2.js?v=320"></script>
 <script src="js/extra8.js?v=318"></script>
 <script src="js/extra9.js?v=315"></script>
-<script src="js/ui2.js?v=319"></script>
+<script src="js/extra10.js?v=320"></script>
+<script src="js/ui2.js?v=320"></script>
 <!-- ================= 界隈研究室 ================= -->
 <section class="screen" id="screen-lab">
   <div class="hero" style="padding:30px 10px 0"><h1 style="font-size:24px">界隈研究室</h1></div>

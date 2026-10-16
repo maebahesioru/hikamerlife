@@ -123,6 +123,17 @@ window.HK = window.HK || {};
       }, 900);
     });
     $("btnResume").addEventListener("click", resumeGame);
+    $("btnAlloc").addEventListener("click", openAlloc);
+    $("btnAllocReroll").addEventListener("click", () => { allocPool = HK.EXTRA10.rollNums(); allocSel = -1; allocMap = {}; renderAlloc(); });
+    $("btnAllocAuto").addEventListener("click", () => {
+      const keys = ALLOC_KEYS.map(k => k[0]);
+      const vals = allocPool.slice().sort(() => Math.random() - 0.5);
+      allocMap = {};
+      vals.forEach((v, i) => { allocPool[i] = v; allocMap[i] = keys[i]; });
+      allocSel = -1; renderAlloc();
+    });
+    $("btnAllocOk").addEventListener("click", applyAlloc);
+    $("btnAllocClose").addEventListener("click", closeAlloc);
     $("btnEnterLife").addEventListener("click", () => {
       if (!S) return;
       pendingLife = false;
@@ -199,6 +210,46 @@ window.HK = window.HK || {};
     if (S.mode === "life") {
       $("certScreenStory").insertAdjacentHTML("afterbegin", `<div class="dim small" style="margin-bottom:6px">この人生は<b>0歳から</b>始まる。ネットと出会うのは、13歳。それまでは、ただの生活。</div>`);
     }
+    if (S.flags && S.flags.includes("nazi_born")) {
+      $("certScreenStory").insertAdjacentHTML("afterbegin", `<div class="dim small" style="margin-bottom:6px">この家系は、界隈で言う<b>ネオナチ族</b>。生まれる前から、TLの色が決まっていた。</div>`);
+    }
+  }
+
+  /* ---------- 才覚ガチャ（任意割り振り） ---------- */
+  const ALLOC_KEYS = [["action", "行動力"], ["intel", "知力"], ["influence", "影響力"], ["stamina", "持続力"], ["mental", "メンタル"], ["luck", "運"]];
+  let allocPool = [], allocSel = -1, allocMap = {};
+  function openAlloc() {
+    allocPool = HK.EXTRA10.rollNums(); allocSel = -1; allocMap = {};
+    renderAlloc();
+    $("allocOv").hidden = false;
+  }
+  function closeAlloc() { $("allocOv").hidden = true; }
+  function renderAlloc() {
+    const chips = $("allocChips");
+    chips.innerHTML = allocPool.map((v, i) => allocMap[i] != null ? "" : `<button class="allocchip ${allocSel === i ? "on" : ""}" data-i="${i}">${v}</button>`).join("")
+      || `<span class="dim small">数字をすべて振り分けた。「この配分で決定」を押そう。</span>`;
+    chips.querySelectorAll(".allocchip").forEach(b => b.onclick = () => { allocSel = +b.dataset.i; renderAlloc(); });
+    $("allocSlots").innerHTML = ALLOC_KEYS.map(([k, label]) => {
+      const i = Object.keys(allocMap).find(x => allocMap[x] === k);
+      return `<div class="allocrow"><span>${label}</span><button class="allotslot ${i != null ? "filled" : ""}" data-k="${k}">${i != null ? allocPool[i] : "—"}</button></div>`;
+    }).join("");
+    $("allocSlots").querySelectorAll(".allotslot").forEach(b => b.onclick = () => {
+      const k = b.dataset.k;
+      const cur = Object.keys(allocMap).find(x => allocMap[x] === k);
+      if (cur != null) { delete allocMap[cur]; }
+      if (allocSel >= 0 && Object.values(allocMap).indexOf(k) < 0) { allocMap[allocSel] = k; allocSel = -1; }
+      renderAlloc();
+    });
+    $("btnAllocOk").disabled = Object.keys(allocMap).length !== 6;
+  }
+  function applyAlloc() {
+    if (Object.keys(allocMap).length !== 6) return;
+    const q = {};
+    for (const i of Object.keys(allocMap)) q[allocMap[i]] = allocPool[+i];
+    HK.EXTRA10.applyQualities(S, q);
+    fillCertScreen();
+    closeAlloc();
+    toast("才覚を振り分け直した。参入証に反映された。");
   }
 
   /* ---------- 途中保存 / つづきから ---------- */

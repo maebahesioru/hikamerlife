@@ -360,9 +360,9 @@ window.HK = window.HK || {};
       showModal("ひと息");
     } else if (p.kind === "revive") {
       $("modalTag").textContent = "凍結";
-      $("modalPrompt").textContent = "アカウントを失った。あなたはどうする？";
+      $("modalPrompt").textContent = "アカウントが凍結された。名前を覚えている人は、まだいる。どうする？";
       const wrap = $("modalChoices"); wrap.innerHTML = "";
-      [["転生する（新しい名前で戻る）", 0], ["界隈を去る（ここで終わり）", 1], ["少し休んでから戻る", 2]].forEach(([label, i]) => {
+      [["同じ名義で立て直す", 0], ["界隈を去る（ここで終わり）", 1], ["少し休んでから戻る", 2]].forEach(([label, i]) => {
         const b = document.createElement("button");
         b.className = "choice"; b.textContent = label;
         b.onclick = () => { HK.engine2.resolve(S, i); renderAll(); hideModal(); if (S.ended) { showEnding(); return; } schedule(speedMs() * 0.5); };

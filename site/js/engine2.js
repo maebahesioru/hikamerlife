@@ -480,16 +480,16 @@ window.HK = window.HK || {};
       }
     }
     // 凍結
-    const wave = (S.date.getMonth() + 1 === 5 && S.date.getDate() >= 9 && S.date.getDate() <= 13)
+    const wave = (S.date.getMonth() + 1 === 5 && S.date.getDate() >= 9 && S.date.getDate() <= 13 && S.era.year >= 2025)
       || (S.date.getMonth() + 1 === 7 && S.date.getDate() >= 15 && S.date.getDate() <= 19);
     const fp = (hk.banRisk >= 80 ? 0.012 : hk.banRisk >= 55 ? 0.004 : 0.0006) * (wave ? 2.2 : 1);
     if (S.rng.chance(fp)) {
       hk.freezes++;
       hk.banRisk = clamp(hk.banRisk - 40, 0, 100);
-      hk.followers = Math.round(hk.followers * (0.1 + S.rng.range(0, 0.2)));
+      hk.followers = 0;
       S.stats.mental = clamp(S.stats.mental - 10, 0, 100);
       S.heat = clamp(S.heat - 15, 0, 100);
-      pushLog(S, "freeze", `あなたのアカウントは凍結された。${hk.freezes}回目。一晩で「あなた」が消えた。通知欄は、からっぽになった。`);
+      pushLog(S, "freeze", `あなたのアカウントは凍結された。${hk.freezes}回目。一晩で「あなた」が消えた。通知欄も、フォロワーも、からっぽになった。`);
       unlockZukan(S, "c18");
       if (hk.freezes >= 4 && S.stats.mental < 30) { endGame(S, "burned"); return; }
       if (S.rng.chance(0.8)) S.pending = { kind: "revive" };
@@ -604,11 +604,10 @@ window.HK = window.HK || {};
       // UI側でノート
     } else if (p.kind === "revive") {
       if (idx === 0) {
-        S.handle = makeHandle(S.rng);
-        S.hk.followers = Math.max(S.hk.followers, S.rng.int(2, 15));
+        S.hk.followers = S.rng.int(3, 30);
         S.stats.mental = clamp(S.stats.mental + 6, 0, 100);
         S.heat = clamp(S.heat + 10, 0, 100);
-        pushLog(S, "revive", `あなたは転生した。新しい名前は「${S.handle}」。ゼロから、もう一度。`);
+        pushLog(S, "revive", `同じ名義「${S.handle}」で、アカウントを立て直した。フォロワー欄は、ほぼゼロから。「戻ってきた」のリプが、少しずつ増えていく。`);
       } else if (idx === 1) {
         endGame(S, "burned");
       } else {

@@ -73,7 +73,7 @@ window.HK = window.HK || {};
         fameRisk: family.monitor || 4, banRisk: 0, nareai: 0, edge: 0, dev: 0, freezes: 0,
         retireCount: (path.fx.retireCount || 0), doxxed: false
       },
-      money: family.money0,
+      money: opts.mode === "life" ? 0 : startMoney(rng, startAge, family.money0),
       focus: "none",
       heat: clamp(55 + Math.round((qualities.stamina - 50) / 10), 40, 70),
       faded: false,
@@ -173,6 +173,16 @@ window.HK = window.HK || {};
         return rng.pick([romaji + num(), romaji + "_" + r2, noun + num(), cap(romaji)]);
       }
     }
+  }
+
+  /* ---------- 年齢に応じた初期所持金（子供は小遣い・お年玉貯金レベル） ---------- */
+  function startMoney(rng, age, familyMoney) {
+    const hh = Math.max(0, familyMoney || 0);
+    if (age <= 12) return rng.int(500, 5000);                                    // 小学生: お小遣い
+    if (age <= 15) return Math.round(hh * 0.02) + rng.int(1000, 10000);          // 中学生: お年玉貯金
+    if (age <= 17) return Math.round(hh * 0.05) + rng.int(5000, 30000);          // 高校生
+    if (age <= 19) return Math.round(hh * 0.25) + rng.int(0, 50000);             // 18〜19: 進学・初バイト期
+    return familyMoney || 0;                                                     // 20歳〜: 自分の資金
   }
 
   /* ---------- ログ ---------- */
@@ -294,12 +304,17 @@ window.HK = window.HK || {};
       if (S.age >= 15 && S.dayNum % 28 === 0 && S.rng.chance(0.5)) S.stats.hp = clamp(S.stats.hp - 1, 0, 100);
       if (S.focus === "real") S.stats.know = clamp(S.stats.know + 1, 0, 100);
     }
-    // 月次お金
+    // 月次お金（年齢で経済が変わる）
     if (S.dayNum % 30 === 0) {
-      if (S.age >= 16 && S.flags.includes("baito")) S.money += 30000;
-      else if (S.age >= 18) S.money += 120000;
-      if (S.flags.includes("afi")) S.money += 40000;
-      S.money -= 15000 + S.rng.int(0, 20000);
+      if (S.age < 16) {
+        S.money += 1000 + S.rng.int(0, 4000);                      // お小遣い
+      } else {
+        if (S.flags.includes("baito")) S.money += 30000;           // バイト
+        else if (S.age >= 18) S.money += 120000;                   // 社会人
+        else S.money += 2000 + S.rng.int(0, 8000);                 // 高校生のお小遣い
+        if (S.age >= 18) S.money -= 15000 + S.rng.int(0, 20000);   // 生活費は自活してから
+        if (S.flags.includes("afi")) S.money += 40000;
+      }
     }
   }
 
@@ -511,6 +526,11 @@ window.HK = window.HK || {};
         }
       }
       if (S.dayNum >= 220) { S.child = false; S.age = S.entryAge; entryLife(S); }
+      else {
+        // 子供のお金: お小遣いとお年玉だけ
+        if (S.dayNum % 30 === 0) S.money += 500 + S.rng.int(0, 1500);
+        if (S.dayNum === 200) { S.money += 3000 + S.rng.int(0, 7000); pushLog(S, "child", "お年玉をもらった。使い道は、まだ決めていない。"); }
+      }
       S.days.push({ day: S.dayNum, happy: S.stats.happy, followers: 0 });
       return { status: "ok" };
     }

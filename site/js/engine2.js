@@ -238,6 +238,7 @@ window.HK = window.HK || {};
     ["hp", "happy", "know", "rel", "mental"].forEach(k => { if (fx[k]) add(k, fx[k]); });
     if (fx.money) S.money += fx.money;
     if (fx.fame) hk.followers = Math.max(0, hk.followers + fx.fame);
+    if (fx.famePct) hk.followers = Math.max(0, Math.round(hk.followers * (1 + fx.famePct / 100)));
     if (fx.goroku) hk.goroku = clamp(hk.goroku + fx.goroku, 0, 100);
     if (fx.skill) hk.skill = clamp(hk.skill + fx.skill, 0, 100);
     if (fx.fameRisk) hk.fameRisk = clamp(hk.fameRisk + fx.fameRisk, 0, 100);
@@ -429,7 +430,8 @@ window.HK = window.HK || {};
       tsuiwaste: "気づけば、TLが人生そのものになっていた。あなたの一日は、通知欄から始まる。",
       lawsuit: "法廷は、句読点まで読み込む場所だった。ネットの言葉が、紙になって返ってきた。",
       seisai_end: "制裁の雨は、三日で止まらなかった。傘を探しているうちに、あなたの界隈歴は終わっていた。",
-      hogo: "夜の侵入は、現実の法に記録された。ネットの顔と現実の名前が、初めて繋がった日。"
+      hogo: "夜の侵入は、現実の法に記録された。ネットの顔と現実の名前が、初めて繋がった日。",
+      kuchinashi: "界隈の言葉で、それは「👄🍐」と書かれる。あなたのTLは、そこで止まった。"
     }[type] || "あなたの界隈歴は、ここで一区切りついた。";
     pushLog(S, "ending", endLine);
   }

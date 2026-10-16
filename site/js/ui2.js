@@ -185,6 +185,7 @@ window.HK = window.HK || {};
       `<div class="certrow"><span>きっかけ</span><b>${esc(t.label)}</b></div>` +
       `<div class="certrow"><span>界隈デビュー元</span><b>${esc(ogL)}</b></div>` +
       `<div class="certrow"><span>タイプ</span><b>${esc(arL)}</b></div>` +
+      (S.fac ? `<div class="certrow"><span>派閥</span><b>${esc((HK.EXTRA8.facLabel && HK.EXTRA8.facLabel(S.fac)) || S.fac)}</b></div>` : "") +
       `<div class="certrow"><span>出身</span><b>${esc(S.pref)}</b></div>` +
       `<div class="certrow"><span>家</span><b>${esc(S.family.label)}</b></div>` +
       `<div class="certrow"><span>ネット環境</span><b>${esc(S.net.label)}</b></div>` +

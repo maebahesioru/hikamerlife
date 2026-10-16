@@ -345,14 +345,17 @@ window.HK = window.HK || {};
         out.push(ev);
       }
     }
-    // 通常
+    // 通常（静かな日が基本。連日は出にくい）
     const heatK = S.heat > 40 ? 1 : S.heat > 15 ? 0.6 : 0.25;
-    const n = (S.rng.chance(0.5 * heatK) ? 1 : 0) + (S.rng.chance(0.16 * heatK) ? 1 : 0);
+    let dayChance = 0.34 * heatK;
+    if (S.dayNum - (S._lastEvDay || -999) <= 1) dayChance *= 0.35;    // 昨日も何かあった→今日は静かに
+    const n = (S.rng.chance(dayChance) ? 1 : 0) + (S.rng.chance(0.06 * heatK) ? 1 : 0);
     for (let i = 0; i < n; i++) {
       const pool = HK.EVENTS2.filter(e => eligible(S, e));
       if (!pool.length) break;
       const ev = S.rng.wpick(pool, e => e.w || 1);
       S._lastEv[ev.id] = S.dayNum;
+      S._lastEvDay = S.dayNum;
       if (ev.once) S._once[ev.id] = true;
       out.push(ev);
     }

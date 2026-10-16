@@ -308,3 +308,9 @@ SPAの全JSがHTMLにインライン（3.1MB）→ 整形後 **93,365行** の�
 - 「I WANT YOU for HIKAMER」募集ポスター: promo/recruit_1080x1350.png（1080×1350 @2x）
 - 生成: ../hikamer_life_research/gen_recruit.py（HTML+SVGドット絵→Chromium→PNG、ゲームと同じパレット）
 - 非カマー向けCTA「実際にヒカマーになってみないか？」＋「最寄りのブラウザが、募集所。」
+
+### v3.19（2026-10-16）リザルト画面に募集枠（I WANT YOU for HIKAMER）
+
+- エンディング画面に募集パネル追加: 透過ドット絵フィギュア（img/recruit_fig.png）＋「I WANT YOU for HIKAMER」＋「実際にヒカマーになってみないか？」＋参入無料スタンプ。シェアされた非カマー向けの宣伝面を兼ねる
+- 共有カード（canvas）下部にも募集ストリップを描画（I WANT YOU for HIKAMER／参入無料・登録不要スタンプ／URL）→ 保存した共有画像がそのまま募集ポスターになる
+- 検証: ローカル/モバイル390pxでエンディング表示・画像読込・カード描画・はみ出しなし・エラー0

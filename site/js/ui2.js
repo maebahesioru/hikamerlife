@@ -214,6 +214,9 @@ window.HK = window.HK || {};
     if (S.flags && S.flags.includes("nazi_born")) {
       $("certScreenStory").insertAdjacentHTML("afterbegin", `<div class="dim small" style="margin-bottom:6px">この家系は、界隈で言う<b>ネオナチ族</b>。生まれる前から、TLの色が決まっていた。</div>`);
     }
+    if (S.flags && S.flags.includes("develop_self")) {
+      $("certScreenStory").insertAdjacentHTML("afterbegin", `<div class="dim small" style="margin-bottom:6px">この人は、あの<b>「開發」本人</b>である。生まれた時から、燃料を背負っている。</div>`);
+    }
   }
 
   /* ---------- 才覚ガチャ（任意割り振り） ---------- */
